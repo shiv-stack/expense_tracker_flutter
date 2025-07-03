@@ -1,33 +1,62 @@
-import 'package:expensely_app/Screens/HomePage.dart';
+import 'package:expensely_app/Screens/HomeScreen.dart';
+import 'package:expensely_app/Screens/Welcome_Screen.dart';
 import 'package:expensely_app/bloc/expense_bloc.dart';
+import 'package:expensely_app/bloc/expense_event.dart';
+import 'package:expensely_app/models/transaction.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
+import 'package:hive_flutter/adapters.dart';
+
+import 'services/shared_prefs_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(TransactionAdapter());
+  await Hive.openBox<Transaction>('transactionsBox');
+
+  final prefsService = await SharedPrefsService.getInstance();
+  final savedName = prefsService.getUserName(); // ⬅️ Get instance
+
   runApp(
-    BlocProvider(
-      create: (_) => ExpenseBloc(),
-      child: const MyApp(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ExpenseBloc()..add(LoadTransactions())),
+
+        // Add more BLoCs later if needed
+      ],
+      child: MyApp(prefsService: prefsService, savedName: savedName),
     ),
   );
 }
 
-
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final SharedPrefsService prefsService;
+  final String? savedName;
+
+  const MyApp({
+    super.key,
+    required this.savedName,
+    required this.prefsService,
+  }); // ✅ fix here
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Expensely App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:  const HomePage(),
+      home: savedName == null
+          ? WelcomeScreen(
+              prefsService: prefsService,
+            )
+          : HomeScreen(userName: savedName!), 
     );
   }
 }
-
-

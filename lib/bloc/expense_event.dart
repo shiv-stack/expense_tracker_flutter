@@ -13,3 +13,4 @@ class AddTransaction extends ExpenseEvent {
     required this.isIncome,
   });
 }
+class LoadTransactions extends ExpenseEvent {}

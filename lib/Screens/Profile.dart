@@ -1,4 +1,4 @@
-import 'package:expensely_app/Screens/HomePage.dart';
+import 'package:expensely_app/Screens/HomeScreen.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -88,7 +88,7 @@ class ProfileScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
+                      MaterialPageRoute(builder: (context) => const HomeScreen(userName: '',)),
                     );
                   },
                   icon: const Icon(Icons.home)),

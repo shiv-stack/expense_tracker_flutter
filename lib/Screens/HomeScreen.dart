@@ -3,11 +3,25 @@ import 'package:expensely_app/Screens/Profile.dart';
 import 'package:expensely_app/bloc/expense_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../bloc/expense_bloc.dart'; // Adjust path as needed
 import 'package:intl/intl.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  final String userName;
+  const HomeScreen({super.key, required this.userName});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +48,14 @@ class HomePage extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Good afternoon,",
+                      Text(
+                        _getGreeting(),
                         style: TextStyle(color: Colors.white70, fontSize: 16),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        "Shivam Thapa",
-                        style: TextStyle(
+                      Text(
+                        widget.userName,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,
                             fontWeight: FontWeight.bold),
@@ -92,7 +106,8 @@ class HomePage extends StatelessWidget {
                                         style: const TextStyle(
                                             color: Colors.white)),
                                     const Text("Income",
-                                        style: TextStyle(color: Colors.white70)),
+                                        style:
+                                            TextStyle(color: Colors.white70)),
                                   ],
                                 ),
                                 Column(
@@ -105,7 +120,8 @@ class HomePage extends StatelessWidget {
                                         style: const TextStyle(
                                             color: Colors.white)),
                                     const Text("Expenses",
-                                        style: TextStyle(color: Colors.white70)),
+                                        style:
+                                            TextStyle(color: Colors.white70)),
                                   ],
                                 ),
                               ],
@@ -161,41 +177,42 @@ class HomePage extends StatelessWidget {
           );
         },
         backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
         child: const Icon(Icons.add, size: 32),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  },
-                  icon: const Icon(Icons.home)),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.pie_chart)),
-              const SizedBox(width: 40),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.receipt_long)),
-              IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ProfileScreen()),
-                    );
-                  },
-                  icon: const Icon(Icons.person)),
-            ],
-          ),
+     bottomNavigationBar: BottomAppBar(
+  shape: const CircularNotchedRectangle(),
+  notchMargin: 8,
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          iconSize: 28,
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(userName: widget.userName),
+              ),
+            );
+          },
+          icon: const Icon(Icons.home),
         ),
-      ),
+        IconButton(
+          iconSize: 28,
+          onPressed: () {
+            // Navigate to Group/Friends screen
+          },
+          icon: const Icon(Icons.pie_chart),
+        ),
+      ],
+    ),
+  ),
+),
+
     );
   }
 
@@ -215,4 +232,11 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+}
+
+String _getGreeting() {
+  final hour = DateTime.now().hour;
+  if (hour < 12) return "Good morning,";
+  if (hour < 17) return "Good afternoon,";
+  return "Good evening,";
 }
