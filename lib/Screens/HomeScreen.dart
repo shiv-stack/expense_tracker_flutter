@@ -1,4 +1,5 @@
 import 'package:expensely_app/Screens/Add_Expense.dart';
+import 'package:expensely_app/Screens/Chart_Screen.dart';
 import 'package:expensely_app/Screens/Profile.dart';
 import 'package:expensely_app/bloc/expense_state.dart';
 import 'package:flutter/material.dart';
@@ -181,38 +182,43 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add, size: 32),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-     bottomNavigationBar: BottomAppBar(
-  shape: const CircularNotchedRectangle(),
-  notchMargin: 8,
-  child: Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 30.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          iconSize: 28,
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(userName: widget.userName),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                iconSize: 28,
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          HomeScreen(userName: widget.userName),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.home),
               ),
-            );
-          },
-          icon: const Icon(Icons.home),
+              IconButton(
+                iconSize: 28,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ChartScreen()),
+                  );
+                  // Navigate to Group/Friends screen
+                },
+                icon: const Icon(Icons.pie_chart),
+              ),
+            ],
+          ),
         ),
-        IconButton(
-          iconSize: 28,
-          onPressed: () {
-            // Navigate to Group/Friends screen
-          },
-          icon: const Icon(Icons.pie_chart),
-        ),
-      ],
-    ),
-  ),
-),
-
+      ),
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:expensely_app/Screens/HomeScreen.dart';
 import 'package:expensely_app/Screens/Welcome_Screen.dart';
 import 'package:expensely_app/bloc/expense_bloc.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
+import 'package:expensely_app/models/category_model.dart';
 import 'package:expensely_app/models/transaction.dart';
 
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ void main() async {
 
   await Hive.initFlutter();
   Hive.registerAdapter(TransactionAdapter());
+  Hive.registerAdapter(CategoryModelAdapter()); 
   await Hive.openBox<Transaction>('transactionsBox');
 
   final prefsService = await SharedPrefsService.getInstance();

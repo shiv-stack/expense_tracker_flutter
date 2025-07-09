@@ -14,20 +14,17 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         amount: event.amount,
         date: event.date,
         isIncome: event.isIncome,
+        category: event.category, // ✅ Now storing category
       );
 
-      box.add(newTx); // ✅ Save to Hive
+      box.add(newTx); // Save to Hive
       final updated = List<Transaction>.from(box.values);
       emit(ExpenseState(transactions: updated));
     });
 
-    // Load from Hive on start
     on<LoadTransactions>((event, emit) {
       final saved = box.values.toList();
       emit(ExpenseState(transactions: saved));
     });
   }
 }
-
-
-
