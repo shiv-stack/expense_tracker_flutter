@@ -19,6 +19,8 @@ class Transaction {
 
   @HiveField(4)
   final CategoryModel category; // ⬅️ Add this field
+  @HiveField(5)
+  String note;
 
   Transaction({
     required this.title,
@@ -26,5 +28,6 @@ class Transaction {
     required this.date,
     required this.isIncome,
     required this.category,
+    this.note = "",
   });
 }

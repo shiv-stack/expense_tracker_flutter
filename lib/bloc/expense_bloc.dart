@@ -14,7 +14,8 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         amount: event.amount,
         date: event.date,
         isIncome: event.isIncome,
-        category: event.category, // ✅ Now storing category
+        category: event.category, 
+        note: event.note, // ✅ Now storing category
       );
 
       box.add(newTx); // Save to Hive

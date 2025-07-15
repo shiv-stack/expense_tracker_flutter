@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:expensely_app/Screens/Add_Expense.dart';
 import 'package:expensely_app/Screens/Chart_Screen.dart';
 import 'package:expensely_app/Screens/Profile.dart';
@@ -152,13 +153,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text("See all", style: TextStyle(color: Colors.blue)),
                         ],
                       ),
-                      const SizedBox(height: 15),
-                      ...?state?.transactions.map((transaction) {
+                      SizedBox(height: 15),
+                      ...state.transactions
+                          .sorted((a, b) =>
+                              b.date.compareTo(a.date)) // Sort by latest date
+                          .map((transaction) {
                         return _buildTransaction(
                           transaction.title,
                           DateFormat.yMMMd().format(transaction.date),
                           "${transaction.isIncome ? '+' : '-'} \$${transaction.amount.toStringAsFixed(2)}",
                           transaction.isIncome ? Colors.green : Colors.red,
+                          transaction.note,
                         );
                       }).toList(),
                     ],
@@ -223,26 +228,37 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTransaction(
-      String title, String date, String amount, Color color) {
+      String title, String date, String amount, Color color, String note) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
         backgroundColor: Colors.grey.shade200,
         child: Text(title[0], style: const TextStyle(color: Colors.black)),
       ),
-      title: Text(title),
-      subtitle: Text(date),
-      trailing: Text(
-        amount,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      title: Text(title,),
+      subtitle: Text(note.isNotEmpty ? note : ''),
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            amount,
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            date,
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
       ),
     );
   }
-}
 
-String _getGreeting() {
-  final hour = DateTime.now().hour;
-  if (hour < 12) return "Good morning,";
-  if (hour < 17) return "Good afternoon,";
-  return "Good evening,";
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return "Good morning,";
+    if (hour < 17) return "Good afternoon,";
+    return "Good evening,";
+  }
 }

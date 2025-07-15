@@ -20,6 +20,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   String selectedType = 'Expense'; // default
   CategoryModel? selectedCategory; // Default category
   TextEditingController amountController = TextEditingController(text: "0.00");
+  TextEditingController noteController = TextEditingController();
   DateTime selectedDate = DateTime.now(); // ✅ Sets today's date
 
   Future<void> _selectDate(BuildContext context) async {
@@ -174,6 +175,19 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  //note
+                  TextFormField(
+                    controller: noteController,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      labelText: 'Note (optional)',
+                      prefixIcon: Icon(Icons.note),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
                   // Date Picker
                   GestureDetector(
@@ -213,14 +227,17 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                           style: TextStyle(color: Colors.grey)),
                     ),
                   ),
-                  SizedBox(height: 20,),
+                  SizedBox(
+                    height: 20,
+                  ),
 
                   // Save Button
                   SizedBox(
                     width: 200,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF1A8E74), // ✅ Background color
+                        backgroundColor:
+                            Color(0xFF1A8E74), // ✅ Background color
                         foregroundColor: Colors.white, // ✅ Text/icon color
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 14),
@@ -232,7 +249,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         final amount =
                             double.tryParse(amountController.text) ?? 0.0;
                         final isIncome = selectedType == 'Income';
-                    
+
                         context.read<ExpenseBloc>().add(
                               AddTransaction(
                                 title: selectedCategory?.name ?? "Unknown",
@@ -240,9 +257,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                                 date: selectedDate,
                                 isIncome: isIncome,
                                 category: selectedCategory!,
+                                note: noteController.text.trim(),
                               ),
                             );
-                    
+
                         Navigator.pop(context);
                       },
                       child: const Text("Save"),
