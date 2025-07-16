@@ -214,19 +214,55 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   const SizedBox(height: 20),
 
                   // Add Invoice (Optional)
-                  DottedBorder(
-                    borderType: BorderType.RRect,
-                    radius: const Radius.circular(12),
-                    dashPattern: [8, 4],
-                    color: Colors.grey,
-                    child: Container(
-                      width: double.infinity,
-                      height: 70,
-                      alignment: Alignment.center,
-                      child: const Text("+ Add Invoice",
-                          style: TextStyle(color: Colors.grey)),
+                  GestureDetector(
+                    onTap: () {
+                      final overlay = Overlay.of(context);
+                      final overlayEntry = OverlayEntry(
+                        builder: (context) => Positioned(
+                          top: MediaQuery.of(context).size.height * 0.7,
+                          left: MediaQuery.of(context).size.width * 0.1,
+                          right: MediaQuery.of(context).size.width * 0.1,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white30,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  "🚧 This feature will roll out soon!",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+
+                      overlay.insert(overlayEntry);
+
+                      Future.delayed(const Duration(seconds: 2), () {
+                        overlayEntry.remove();
+                      });
+                    },
+                    child: DottedBorder(
+                      borderType: BorderType.RRect,
+                      radius: const Radius.circular(12),
+                      dashPattern: [8, 4],
+                      color: Colors.grey,
+                      child: Container(
+                        width: double.infinity,
+                        height: 70,
+                        alignment: Alignment.center,
+                        child: const Text("+ Add Invoice",
+                            style: TextStyle(color: Colors.grey)),
+                      ),
                     ),
                   ),
+
                   SizedBox(
                     height: 20,
                   ),

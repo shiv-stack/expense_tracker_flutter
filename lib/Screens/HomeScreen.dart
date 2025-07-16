@@ -50,17 +50,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _getGreeting(),
-                        style: TextStyle(color: Colors.white70, fontSize: 16),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.userName,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _getGreeting(),
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 16),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.userName,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.filter_list,
+                                color: Colors.white, size: 28),
+                            onPressed: () {
+                              showFilterBottomSheet(context);
+                              // You can add your filter modal function here later
+                              print("Filter icon tapped");
+                            },
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 20),
                       Container(
@@ -198,13 +218,13 @@ class _HomeScreenState extends State<HomeScreen> {
               IconButton(
                 iconSize: 28,
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen(userName: widget.userName),
-                    ),
-                  );
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) =>
+                  //         HomeScreen(userName: widget.userName),
+                  //   ),
+                  // );
                 },
                 icon: const Icon(Icons.home),
               ),
@@ -235,7 +255,9 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.grey.shade200,
         child: Text(title[0], style: const TextStyle(color: Colors.black)),
       ),
-      title: Text(title,),
+      title: Text(
+        title,
+      ),
       subtitle: Text(note.isNotEmpty ? note : ''),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -260,5 +282,157 @@ class _HomeScreenState extends State<HomeScreen> {
     if (hour < 12) return "Good morning,";
     if (hour < 17) return "Good afternoon,";
     return "Good evening,";
+  }
+
+  void showFilterBottomSheet(BuildContext context) {
+    List<String> months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    List<int> years = List.generate(10, (index) => 2024 + index);
+
+    String selectedMonth = DateFormat.MMMM().format(DateTime.now());
+    int selectedYear = DateTime.now().year;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Filter Transactions",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 250,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: months.length,
+                            itemBuilder: (context, index) {
+                              final month = months[index];
+                              final isSelected = selectedMonth == month;
+                              return ListTile(
+                                title: Text(
+                                  month,
+                                  style: TextStyle(
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                trailing: isSelected
+                                    ? const Icon(Icons.check,
+                                        color: Colors.green)
+                                    : null,
+                                onTap: () {
+                                  setState(() {
+                                    selectedMonth = month;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: years.length,
+                            itemBuilder: (context, index) {
+                              final year = years[index];
+                              final isSelected = selectedYear == year;
+                              return ListTile(
+                                title: Text(
+                                  "$year",
+                                  style: TextStyle(
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                trailing: isSelected
+                                    ? const Icon(Icons.check,
+                                        color: Colors.green)
+                                    : null,
+                                onTap: () {
+                                  setState(() {
+                                    selectedYear = year;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            side: const BorderSide(color: Colors.black),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Cancel"),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onPressed: () {
+                            // TODO: Apply your filter logic here
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Apply Filter"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

@@ -18,7 +18,8 @@ class Transaction {
   final bool isIncome;
 
   @HiveField(4)
-  final CategoryModel category; // ⬅️ Add this field
+  final CategoryModel category;
+   // ⬅️ Add this field
   @HiveField(5)
   String note;
 
