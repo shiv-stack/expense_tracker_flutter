@@ -1,7 +1,7 @@
 import '../models/category_model.dart';
 
 final List<CategoryModel> expenseCategories = [
-  CategoryModel(name: 'Food', iconKey: 'fastfood', type: 'Expense'),
+  CategoryModel(name: 'Food', iconKey: 'food', type: 'Expense'),
   CategoryModel(name: 'Transport', iconKey: 'car', type: 'Expense'),
   CategoryModel(name: 'Shopping', iconKey: 'shopping', type: 'Expense'),
   CategoryModel(name: 'Bills', iconKey: 'bills', type: 'Expense'),

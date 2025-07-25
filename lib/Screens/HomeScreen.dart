@@ -2,7 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:expensely_app/Screens/Add_Expense.dart';
 import 'package:expensely_app/Screens/Chart_Screen.dart';
 import 'package:expensely_app/Screens/Profile.dart';
+import 'package:expensely_app/bloc/expense_event.dart';
 import 'package:expensely_app/bloc/expense_state.dart';
+import 'package:expensely_app/utils/icon_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,10 +21,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String userName = '';
+  bool isFilterApplied = false;
 
   @override
   void initState() {
     super.initState();
+    context.read<ExpenseBloc>().add(LoadTransactions());
   }
 
   @override
@@ -71,15 +75,27 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.filter_list,
-                                color: Colors.white, size: 28),
+                          Row(children: [
+                            IconButton(
+                            icon: Icon(Icons.filter_list,color: Colors.white),
                             onPressed: () {
                               showFilterBottomSheet(context);
-                              // You can add your filter modal function here later
-                              print("Filter icon tapped");
+                              setState(() {
+                                isFilterApplied = true;
+                              });
                             },
                           ),
+                          if (isFilterApplied)
+                            IconButton(
+                              icon: Icon(Icons.refresh,color: Colors.white),
+                              onPressed: () {
+                                context.read<ExpenseBloc>().add(ResetFilter());
+                                setState(() {
+                                  isFilterApplied = false;
+                                });
+                              },
+                            ),
+                          ],)
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -108,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              "\$${state.totalBalance.toStringAsFixed(2)}",
+                              "₹${state.totalBalance.toStringAsFixed(2)}",
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 28,
@@ -124,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: Colors.white70),
                                     const SizedBox(height: 5),
                                     Text(
-                                        "\$${state.totalIncome.toStringAsFixed(2)}",
+                                        "₹${state.totalIncome.toStringAsFixed(2)}",
                                         style: const TextStyle(
                                             color: Colors.white)),
                                     const Text("Income",
@@ -138,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: Colors.white70),
                                     const SizedBox(height: 5),
                                     Text(
-                                        "\$${state.totalExpenses.toStringAsFixed(2)}",
+                                        "₹${state.totalExpenses.toStringAsFixed(2)}",
                                         style: const TextStyle(
                                             color: Colors.white)),
                                     const Text("Expenses",
@@ -181,9 +197,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         return _buildTransaction(
                           transaction.title,
                           DateFormat.yMMMd().format(transaction.date),
-                          "${transaction.isIncome ? '+' : '-'} \$${transaction.amount.toStringAsFixed(2)}",
+                          "${transaction.isIncome ? '+' : '-'} ₹${transaction.amount.toStringAsFixed(2)}",
                           transaction.isIncome ? Colors.green : Colors.red,
                           transaction.note,
+                          transaction.category.name
+                          
                         );
                       }).toList(),
                     ],
@@ -248,34 +266,41 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTransaction(
-      String title, String date, String amount, Color color, String note) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: CircleAvatar(
-        backgroundColor: Colors.grey.shade200,
-        child: Text(title[0], style: const TextStyle(color: Colors.black)),
-      ),
-      title: Text(
-        title,
-      ),
-      subtitle: Text(note.isNotEmpty ? note : ''),
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            amount,
-            style: TextStyle(color: color, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            date,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
+  String title,
+  String date,
+  String amount,
+  Color color,
+  String note,
+  String categoryName, 
+) {
+  final icon = iconMap[categoryName.toLowerCase()] ?? Icons.category;
+
+  return ListTile(
+    contentPadding: EdgeInsets.zero,
+    leading: CircleAvatar(
+      backgroundColor: Colors.grey.shade200,
+      child: Icon(icon, color: Colors.black), // <- Use icon here
+    ),
+    title: Text(title),
+    subtitle: Text(note.isNotEmpty ? note : ''),
+    trailing: Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          amount,
+          style: TextStyle(color: color, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          date,
+          style: const TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+      ],
+    ),
+  );
+}
+
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -419,8 +444,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                           onPressed: () {
-                            // TODO: Apply your filter logic here
+                            int monthIndex = months.indexOf(selectedMonth) + 1;
+
+                            context.read<ExpenseBloc>().add(FilterTransactions(
+                                  month: monthIndex,
+                                  year: selectedYear,
+                                ));
+
                             Navigator.pop(context);
+
+                           
                           },
                           child: const Text("Apply Filter"),
                         ),

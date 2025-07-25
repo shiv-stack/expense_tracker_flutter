@@ -8,7 +8,7 @@ class AddTransaction extends ExpenseEvent {
   final String note;
   final DateTime date;
   final bool isIncome;
-  final CategoryModel category; // ⬅️ New
+  final CategoryModel category; 
 
   AddTransaction({
     required this.title,
@@ -21,3 +21,12 @@ class AddTransaction extends ExpenseEvent {
 }
 
 class LoadTransactions extends ExpenseEvent {}
+
+class FilterTransactions extends ExpenseEvent {
+  final int month;
+  final int year;
+
+  FilterTransactions({required this.month, required this.year});
+}
+
+class ResetFilter extends ExpenseEvent {}

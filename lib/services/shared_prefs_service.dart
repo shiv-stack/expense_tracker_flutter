@@ -14,17 +14,17 @@ class SharedPrefsService {
     return _instance!;
   }
 
-  /// Save user's name
+  /// Saving user's name
   Future<void> saveUserName(String name) async {
     await _prefs?.setString('userName', name);
   }
 
-  /// Retrieve saved user's name
+  /// Retriving saved user's name
   String? getUserName() {
     return _prefs?.getString('userName');
   }
 
-  /// Clear all saved preferences (for logout or reset)
+  /// Clearing all saved preferences (for logout or reset)
   Future<void> clearAll() async {
     await _prefs?.clear();
   }

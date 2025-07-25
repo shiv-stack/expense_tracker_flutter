@@ -10,7 +10,7 @@ class CategoryModel {
   final String name;
 
   @HiveField(1)
-  final String iconKey; // Use string instead of iconCode
+  final String iconKey;
 
   @HiveField(2)
   final String type;

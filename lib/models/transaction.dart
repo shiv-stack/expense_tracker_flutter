@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'category_model.dart'; // ⬅️ Import your CategoryModel
+import 'category_model.dart';
 
 part 'transaction.g.dart';
 
@@ -19,7 +19,7 @@ class Transaction {
 
   @HiveField(4)
   final CategoryModel category;
-   // ⬅️ Add this field
+
   @HiveField(5)
   String note;
 

@@ -21,7 +21,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   CategoryModel? selectedCategory; // Default category
   TextEditingController amountController = TextEditingController(text: "0.00");
   TextEditingController noteController = TextEditingController();
-  DateTime selectedDate = DateTime.now(); // ✅ Sets today's date
+  DateTime selectedDate = DateTime.now(); //  today's date
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -83,7 +83,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         isScrollControlled: true,
                         builder: (_) => CategoryModalSheet(
                           isExpense: selectedType == 'Expense',
-                          onCategorySelected: (_) {}, // optional now
+                          onCategorySelected: (_) {}, // optional hai abhi 
                         ),
                       );
 
@@ -163,7 +163,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       labelText: 'Amount',
-                      prefixText: '\$ ',
+                      prefixText: '₹',
                       suffixIcon: TextButton(
                         onPressed: () {
                           amountController.clear();

@@ -14,11 +14,11 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
         amount: event.amount,
         date: event.date,
         isIncome: event.isIncome,
-        category: event.category, 
-        note: event.note, // ✅ Now storing category
+        category: event.category,
+        note: event.note, 
       );
 
-      box.add(newTx); // Save to Hive
+      box.add(newTx); // Saving  to Hive
       final updated = List<Transaction>.from(box.values);
       emit(ExpenseState(transactions: updated));
     });
@@ -26,6 +26,21 @@ class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
     on<LoadTransactions>((event, emit) {
       final saved = box.values.toList();
       emit(ExpenseState(transactions: saved));
+    });
+    on<FilterTransactions>((event, emit) {
+      final allTransactions = box.values.toList();
+
+      final filtered = allTransactions
+          .where((tx) =>
+              tx.date.month == event.month && tx.date.year == event.year)
+          .toList();
+
+      emit(ExpenseState(transactions: filtered));
+    });
+
+    on<ResetFilter>((event, emit) {
+      final all = box.values.toList();
+      emit(ExpenseState(transactions: all));
     });
   }
 }

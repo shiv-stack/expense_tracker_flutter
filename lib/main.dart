@@ -28,7 +28,7 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => ExpenseBloc()..add(LoadTransactions())),
 
-        // Add more BLoCs later if needed
+        
       ],
       child: MyApp(prefsService: prefsService, savedName: savedName),
     ),
@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
     super.key,
     required this.savedName,
     required this.prefsService,
-  }); // ✅ fix here
+  }); 
 
   @override
   Widget build(BuildContext context) {
