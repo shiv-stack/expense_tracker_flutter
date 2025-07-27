@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:expensely_app/Screens/Add_Expense.dart';
 import 'package:expensely_app/Screens/Chart_Screen.dart';
-import 'package:expensely_app/Screens/Profile.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
 import 'package:expensely_app/bloc/expense_state.dart';
+import 'package:expensely_app/constants/colors..dart';
 import 'package:expensely_app/utils/icon_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,8 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF1A8E74);
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -62,40 +60,38 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 _getGreeting(),
-                                style: const TextStyle(
-                                    color: Colors.white70, fontSize: 16),
+                                style: const TextStyle(color: Colors.white70, fontSize: 16),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 widget.userName,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold),
+                                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
-                          Row(children: [
-                            IconButton(
-                            icon: Icon(Icons.filter_list,color: Colors.white),
-                            onPressed: () {
-                              showFilterBottomSheet(context);
-                              setState(() {
-                                isFilterApplied = true;
-                              });
-                            },
-                          ),
-                          if (isFilterApplied)
-                            IconButton(
-                              icon: Icon(Icons.refresh,color: Colors.white),
-                              onPressed: () {
-                                context.read<ExpenseBloc>().add(ResetFilter());
-                                setState(() {
-                                  isFilterApplied = false;
-                                });
-                              },
-                            ),
-                          ],)
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.filter_list, color: Colors.white),
+                                onPressed: () {
+                                  showFilterBottomSheet(context);
+                                  setState(() {
+                                    isFilterApplied = true;
+                                  });
+                                },
+                              ),
+                              if (isFilterApplied)
+                                IconButton(
+                                  icon: Icon(Icons.refresh, color: Colors.white),
+                                  onPressed: () {
+                                    context.read<ExpenseBloc>().add(ResetFilter());
+                                    setState(() {
+                                      isFilterApplied = false;
+                                    });
+                                  },
+                                ),
+                            ],
+                          )
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -117,18 +113,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             const Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Total Balance",
-                                    style: TextStyle(color: Colors.white70)),
-                                Icon(Icons.more_horiz, color: Colors.white),
+                                Text("Total Balance", style: TextStyle(color: Colors.white70)),
+                                // Icon(Icons.more_horiz, color: Colors.white),
                               ],
                             ),
                             const SizedBox(height: 10),
                             Text(
                               "₹${state.totalBalance.toStringAsFixed(2)}",
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 15),
                             Row(
@@ -136,30 +128,20 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Column(
                                   children: [
-                                    const Icon(Icons.arrow_downward,
-                                        color: Colors.white70),
+                                    const Icon(Icons.arrow_downward, color: Colors.white70),
                                     const SizedBox(height: 5),
-                                    Text(
-                                        "₹${state.totalIncome.toStringAsFixed(2)}",
-                                        style: const TextStyle(
-                                            color: Colors.white)),
-                                    const Text("Income",
-                                        style:
-                                            TextStyle(color: Colors.white70)),
+                                    Text("₹${state.totalIncome.toStringAsFixed(2)}",
+                                        style: const TextStyle(color: Colors.white)),
+                                    const Text("Income", style: TextStyle(color: Colors.white70)),
                                   ],
                                 ),
                                 Column(
                                   children: [
-                                    const Icon(Icons.arrow_upward,
-                                        color: Colors.white70),
+                                    const Icon(Icons.arrow_upward, color: Colors.white70),
                                     const SizedBox(height: 5),
-                                    Text(
-                                        "₹${state.totalExpenses.toStringAsFixed(2)}",
-                                        style: const TextStyle(
-                                            color: Colors.white)),
-                                    const Text("Expenses",
-                                        style:
-                                            TextStyle(color: Colors.white70)),
+                                    Text("₹${state.totalExpenses.toStringAsFixed(2)}",
+                                        style: const TextStyle(color: Colors.white)),
+                                    const Text("Expenses", style: TextStyle(color: Colors.white70)),
                                   ],
                                 ),
                               ],
@@ -183,26 +165,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Transactions History",
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text("See all", style: TextStyle(color: Colors.blue)),
+                          Text("Transactions History", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          //  Text("See all", style: TextStyle(color: Colors.blue)),
                         ],
                       ),
                       SizedBox(height: 15),
                       ...state.transactions
-                          .sorted((a, b) =>
-                              b.date.compareTo(a.date)) // Sort by latest date
+                          .sorted((a, b) => b.date.compareTo(a.date)) // Sort by latest date
                           .map((transaction) {
                         return _buildTransaction(
-                          transaction.title,
-                          DateFormat.yMMMd().format(transaction.date),
-                          "${transaction.isIncome ? '+' : '-'} ₹${transaction.amount.toStringAsFixed(2)}",
-                          transaction.isIncome ? Colors.green : Colors.red,
-                          transaction.note,
-                          transaction.category.name
-                          
-                        );
+                            transaction.title,
+                            DateFormat.yMMMd().format(transaction.date),
+                            "${transaction.isIncome ? '+' : '-'} ₹${transaction.amount.toStringAsFixed(2)}",
+                            transaction.isIncome ? Colors.green : Colors.red,
+                            transaction.note,
+                            transaction.category.name);
                       }).toList(),
                     ],
                   );
@@ -251,8 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const ChartScreen()),
+                    MaterialPageRoute(builder: (context) => const ReportScreen()),
                   );
                   // Navigate to Group/Friends screen
                 },
@@ -266,41 +242,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTransaction(
-  String title,
-  String date,
-  String amount,
-  Color color,
-  String note,
-  String categoryName, 
-) {
-  final icon = iconMap[categoryName.toLowerCase()] ?? Icons.category;
+    String title,
+    String date,
+    String amount,
+    Color color,
+    String note,
+    String categoryName,
+  ) {
+    final icon = iconMap[categoryName.toLowerCase()] ?? Icons.category;
 
-  return ListTile(
-    contentPadding: EdgeInsets.zero,
-    leading: CircleAvatar(
-      backgroundColor: Colors.grey.shade200,
-      child: Icon(icon, color: Colors.black), // <- Use icon here
-    ),
-    title: Text(title),
-    subtitle: Text(note.isNotEmpty ? note : ''),
-    trailing: Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          amount,
-          style: TextStyle(color: color, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          date,
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
-        ),
-      ],
-    ),
-  );
-}
-
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        backgroundColor: Colors.grey.shade200,
+        child: Icon(icon, color: Colors.black), // <- Use icon here
+      ),
+      title: Text(title),
+      subtitle: Text(note.isNotEmpty ? note : ''),
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            amount,
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            date,
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -366,15 +341,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 title: Text(
                                   month,
                                   style: TextStyle(
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                   ),
                                 ),
-                                trailing: isSelected
-                                    ? const Icon(Icons.check,
-                                        color: Colors.green)
-                                    : null,
+                                trailing: isSelected ? const Icon(Icons.check, color: Colors.green) : null,
                                 onTap: () {
                                   setState(() {
                                     selectedMonth = month;
@@ -394,15 +364,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 title: Text(
                                   "$year",
                                   style: TextStyle(
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                   ),
                                 ),
-                                trailing: isSelected
-                                    ? const Icon(Icons.check,
-                                        color: Colors.green)
-                                    : null,
+                                trailing: isSelected ? const Icon(Icons.check, color: Colors.green) : null,
                                 onTap: () {
                                   setState(() {
                                     selectedYear = year;
@@ -452,8 +417,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ));
 
                             Navigator.pop(context);
-
-                           
                           },
                           child: const Text("Apply Filter"),
                         ),
