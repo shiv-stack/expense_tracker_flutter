@@ -70,7 +70,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           controller: _tabController,
           isScrollable: true,
           labelColor: colors.onPrimary,
-          unselectedLabelColor: colors.onPrimary.withValues(alpha: 0.7),
+          unselectedLabelColor: colors.onPrimary.withOpacity(0.7),
           indicatorColor: colors.onPrimary,
           indicatorWeight: 3,
           tabs: _tabs.map((title) => Tab(text: title)).toList(),
@@ -419,7 +419,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                                   );
                                 }).toList();
                               },
-                              tooltipBgColor: Colors.blueGrey.withValues(alpha: 0.8),
+                              tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
                               tooltipRoundedRadius: 8.0,
                             ),
                             handleBuiltInTouches: true,
@@ -453,8 +453,8 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                                 show: true,
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.blue.shade700.withValues(alpha: 0.3),
-                                    Colors.blue.shade300.withValues(alpha: 0),
+                                    Colors.blue.shade700.withOpacity(0.3),
+                                    Colors.blue.shade300.withOpacity(0),
                                   ],
                                   begin: Alignment.bottomCenter,
                                   end: Alignment.topCenter,
@@ -655,7 +655,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                               borderRadius: BorderRadius.circular(10),
                             ),
                             headingRowColor:
-                                WidgetStateProperty.all(Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)),
+                                WidgetStateProperty.all(Theme.of(context).colorScheme.primary.withOpacity(0.1)),
                             columns: const [
                               DataColumn(label: Text('Month', style: TextStyle(fontWeight: FontWeight.bold))),
                               DataColumn(label: Text('Income', style: TextStyle(fontWeight: FontWeight.bold))),
