@@ -1,3 +1,4 @@
+import 'package:expensely_app/constants/colors..dart';
 import 'package:flutter/material.dart';
 import '../models/category_model.dart';
 import '../constants/category_data.dart';
@@ -37,12 +38,19 @@ class _CategoryModalSheetState extends State<CategoryModalSheet> {
       builder: (context, scrollController) {
         return SingleChildScrollView(
           controller: scrollController,
-          child: Padding(
+          child: Container(
+            // color: Colors.white,
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
                 ToggleButtons(
                   isSelected: [isExpenseTab, !isExpenseTab],
+                  constraints: const BoxConstraints(
+                    minWidth: 100,
+                    minHeight: 40,
+                  ),
+                  fillColor: primaryColor,
+                  selectedColor: Colors.white,
                   onPressed: (index) {
                     setState(() {
                       isExpenseTab = index == 0;
@@ -62,11 +70,11 @@ class _CategoryModalSheetState extends State<CategoryModalSheet> {
                 ),
                 const SizedBox(height: 16),
                 Align(
-                  alignment: Alignment.topCenter,
+                  alignment: Alignment.topLeft,
                   child: Wrap(
                     spacing: 16,
                     runSpacing: 16,
-                    alignment: WrapAlignment.center,
+                    alignment: WrapAlignment.start,
                     children: categories.map((cat) {
                       return GestureDetector(
                         onTap: () {
@@ -76,19 +84,28 @@ class _CategoryModalSheetState extends State<CategoryModalSheet> {
                             'isIncome': !isExpenseTab,
                           });
                         },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CircleAvatar(
-                              radius: 24,
-                              child: Icon(cat.icon),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              cat.name,
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ],
+                        child: SizedBox(
+                          height: 90,
+                          width: 60,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundColor: Colors.white,
+                                child: Icon(
+                                  cat.icon,
+                                  color: primaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                cat.name,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }).toList(),

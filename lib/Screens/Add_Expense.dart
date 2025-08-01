@@ -19,7 +19,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   // String selectedCategory = "Expense";
   String selectedType = 'Expense'; // default
   CategoryModel? selectedCategory; // Default category
-  TextEditingController amountController = TextEditingController(text: "0.00");
+  TextEditingController amountController = TextEditingController();
   TextEditingController noteController = TextEditingController();
   DateTime selectedDate = DateTime.now(); //  today's date
 
@@ -48,8 +48,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             // Header with curved background
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(
-                  top: 60, left: 20, right: 20, bottom: 20),
+              padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 20),
               decoration: BoxDecoration(
                 color: primaryColor,
                 borderRadius: const BorderRadius.vertical(
@@ -60,12 +59,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   BackButton(color: Colors.white),
-                  Text("Add Expense",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold)),
-                  Icon(Icons.more_horiz, color: Colors.white),
+                  Text("Add Expense", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(width: 40)
                 ],
               ),
             ),
@@ -73,25 +68,24 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
+                spacing: 15,
                 children: [
                   // Category Dropdown
                   GestureDetector(
                     onTap: () async {
-                      final result =
-                          await showModalBottomSheet<Map<String, dynamic>>(
+                      final result = await showModalBottomSheet<Map<String, dynamic>>(
                         context: context,
                         isScrollControlled: true,
                         builder: (_) => CategoryModalSheet(
                           isExpense: selectedType == 'Expense',
-                          onCategorySelected: (_) {}, // optional hai abhi 
+                          onCategorySelected: (_) {}, // optional hai abhi
                         ),
                       );
 
                       if (result != null) {
                         setState(() {
                           selectedCategory = result['category'];
-                          selectedType =
-                              result['isIncome'] ? 'Income' : 'Expense';
+                          selectedType = result['isIncome'] ? 'Income' : 'Expense';
                         });
                       }
                     },
@@ -101,8 +95,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 20),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                       ),
                       child: Row(
                         children: [
@@ -116,7 +109,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
 
                   // Dropdown for Service/Transaction Title
                   // Container(
@@ -154,13 +146,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   //     },
                   //   ),
                   // ),
-                  const SizedBox(height: 20),
 
                   // Amount Input
                   TextFormField(
                     controller: amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       labelText: 'Amount',
                       prefixText: '₹',
@@ -170,11 +160,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         },
                         child: const Text("Clear"),
                       ),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  const SizedBox(height: 20),
                   //note
                   TextFormField(
                     controller: noteController,
@@ -187,14 +175,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
 
                   // Date Picker
                   GestureDetector(
                     onTap: () => _selectDate(context),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey.shade300),
                         borderRadius: BorderRadius.circular(12),
@@ -211,7 +197,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
 
                   // Add Invoice (Optional)
                   GestureDetector(
@@ -233,8 +218,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                               child: const Center(
                                 child: Text(
                                   "🚧 This feature will roll out soon!",
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 16),
+                                  style: TextStyle(color: Colors.black, fontSize: 16),
                                 ),
                               ),
                             ),
@@ -257,14 +241,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         width: double.infinity,
                         height: 70,
                         alignment: Alignment.center,
-                        child: const Text("+ Add Invoice",
-                            style: TextStyle(color: Colors.grey)),
+                        child: const Text("+ Add Invoice", style: TextStyle(color: Colors.grey)),
                       ),
                     ),
-                  ),
-
-                  SizedBox(
-                    height: 20,
                   ),
 
                   // Save Button
@@ -272,18 +251,21 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     width: 200,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Color(0xFF1A8E74), // ✅ Background color
+                        backgroundColor: Color(0xFF1A8E74), // ✅ Background color
                         foregroundColor: Colors.white, // ✅ Text/icon color
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 32, vertical: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       onPressed: () {
-                        final amount =
-                            double.tryParse(amountController.text) ?? 0.0;
+                        if (amountController.text.isEmpty || selectedCategory == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Please fill all fields")),
+                          );
+                          return;
+                        }
+                        final amount = double.tryParse(amountController.text) ?? 0.0;
                         final isIncome = selectedType == 'Income';
 
                         context.read<ExpenseBloc>().add(

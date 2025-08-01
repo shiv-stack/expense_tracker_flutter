@@ -2,6 +2,7 @@ import 'package:expensely_app/Screens/HomeScreen.dart';
 import 'package:expensely_app/Screens/Welcome_Screen.dart';
 import 'package:expensely_app/bloc/expense_bloc.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
+import 'package:expensely_app/constants/colors..dart';
 import 'package:expensely_app/models/category_model.dart';
 import 'package:expensely_app/models/transaction.dart';
 
@@ -17,7 +18,7 @@ void main() async {
 
   await Hive.initFlutter();
   Hive.registerAdapter(TransactionAdapter());
-  Hive.registerAdapter(CategoryModelAdapter()); 
+  Hive.registerAdapter(CategoryModelAdapter());
   await Hive.openBox<Transaction>('transactionsBox');
 
   final prefsService = await SharedPrefsService.getInstance();
@@ -27,8 +28,6 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => ExpenseBloc()..add(LoadTransactions())),
-
-        
       ],
       child: MyApp(prefsService: prefsService, savedName: savedName),
     ),
@@ -43,7 +42,7 @@ class MyApp extends StatelessWidget {
     super.key,
     required this.savedName,
     required this.prefsService,
-  }); 
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +50,15 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Expensely App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        fontFamily: "Poppins",
+        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
       ),
       home: savedName == null
           ? WelcomeScreen(
               prefsService: prefsService,
             )
-          : HomeScreen(userName: savedName!), 
+          : HomeScreen(userName: savedName!),
     );
   }
 }
