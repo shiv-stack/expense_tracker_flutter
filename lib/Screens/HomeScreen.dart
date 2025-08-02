@@ -4,6 +4,8 @@ import 'package:expensely_app/Screens/Chart_Screen.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
 import 'package:expensely_app/bloc/expense_state.dart';
 import 'package:expensely_app/constants/colors..dart';
+import 'package:expensely_app/constants/extensions.dart';
+import 'package:expensely_app/models/transaction.dart';
 import 'package:expensely_app/utils/icon_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,14 +21,38 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   String userName = '';
   bool isFilterApplied = false;
+  String selectedMonth = DateFormat.MMMM().format(DateTime.now());
+  int selectedYear = DateTime.now().year;
+  final currentMonth = DateTime.now().month;
 
+  late AnimationController _animationController;
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _animationController.forward();
     context.read<ExpenseBloc>().add(LoadTransactions());
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  List<Transaction> filteredTransactions(ExpenseState state) {
+    final filteredTransactions = isFilterApplied
+        ? state.transactions
+        : state.transactions.where((t) => t.date.month == currentMonth && t.date.year == selectedYear).toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    return filteredTransactions;
   }
 
   @override
@@ -87,6 +113,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context.read<ExpenseBloc>().add(ResetFilter());
                                     setState(() {
                                       isFilterApplied = false;
+                                      selectedMonth = DateFormat.MMMM().format(DateTime.now());
+                                      selectedYear = DateTime.now().year;
                                     });
                                   },
                                 ),
@@ -94,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           )
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -110,37 +138,43 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Column(
                           children: [
-                            const Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Total Balance", style: TextStyle(color: Colors.white70)),
+                                Text("Total Balance", style: TextStyle(color: Colors.white)),
                                 // Icon(Icons.more_horiz, color: Colors.white),
                               ],
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 5),
                             Text(
-                              "₹${state.totalBalance.toStringAsFixed(2)}",
-                              style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                              "₹ ${state.totalBalance.formatWithCommas()}",
+                              style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
                             ),
-                            const SizedBox(height: 15),
+                            const SizedBox(height: 5),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Column(
                                   children: [
-                                    const Icon(Icons.arrow_downward, color: Colors.white70),
+                                    CircleAvatar(
+                                        radius: 15,
+                                        backgroundColor: Colors.white12,
+                                        child: const Icon(Icons.arrow_downward, size: 18, color: Colors.green)),
                                     const SizedBox(height: 5),
-                                    Text("₹${state.totalIncome.toStringAsFixed(2)}",
+                                    Text("₹${state.totalIncome.formatWithCommas()}",
                                         style: const TextStyle(color: Colors.white)),
                                     const Text("Income", style: TextStyle(color: Colors.white70)),
                                   ],
                                 ),
                                 Column(
                                   children: [
-                                    const Icon(Icons.arrow_upward, color: Colors.white70),
+                                    CircleAvatar(
+                                        radius: 15,
+                                        backgroundColor: Colors.white12,
+                                        child: const Icon(Icons.arrow_upward, size: 18, color: Colors.red)),
                                     const SizedBox(height: 5),
-                                    Text("₹${state.totalExpenses.toStringAsFixed(2)}",
-                                        style: const TextStyle(color: Colors.white)),
+                                    Text("₹${state.totalExpenses.formatWithCommas()}",
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                                     const Text("Expenses", style: TextStyle(color: Colors.white70)),
                                   ],
                                 ),
@@ -157,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Transaction History
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
               child: BlocBuilder<ExpenseBloc, ExpenseState>(
                 builder: (context, state) {
                   return Column(
@@ -170,17 +204,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       SizedBox(height: 15),
-                      ...state.transactions
-                          .sorted((a, b) => b.date.compareTo(a.date)) // Sort by latest date
+                      ...filteredTransactions(state) // Sort by latest date
                           .map((transaction) {
                         return _buildTransaction(
                             transaction.title,
                             DateFormat.yMMMd().format(transaction.date),
-                            "${transaction.isIncome ? '+' : '-'} ₹${transaction.amount.toStringAsFixed(2)}",
+                            "${transaction.isIncome ? '+' : '-'} ₹${transaction.amount.formatWithCommas()}",
                             transaction.isIncome ? Colors.green : Colors.red,
                             transaction.note,
                             transaction.category.name);
-                      }).toList(),
+                      }),
                     ],
                   );
                 },
@@ -251,30 +284,57 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     final icon = iconMap[categoryName.toLowerCase()] ?? Icons.category;
 
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: CircleAvatar(
-        backgroundColor: Colors.grey.shade200,
-        child: Icon(icon, color: Colors.black), // <- Use icon here
-      ),
-      title: Text(title),
-      subtitle: Text(note.isNotEmpty ? note : ''),
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            amount,
-            style: TextStyle(color: color, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            date,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ],
-      ),
-    );
+    return AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) {
+          return FadeTransition(
+              opacity: _animationController,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.5),
+                  end: Offset.zero,
+                ).animate(_animationController),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: CircleAvatar(
+                      backgroundColor: primaryColor.withValues(alpha: 0.1),
+                      child: Icon(icon, color: primaryColor), // <- Use icon here
+                    ),
+                    title: Text(title),
+                    subtitle: Text(note.isNotEmpty ? note : ''),
+                    trailing: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          amount,
+                          style: TextStyle(color: color, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          date,
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ));
+        });
   }
 
   String _getGreeting() {
@@ -300,9 +360,6 @@ class _HomeScreenState extends State<HomeScreen> {
       "December"
     ];
     List<int> years = List.generate(10, (index) => 2024 + index);
-
-    String selectedMonth = DateFormat.MMMM().format(DateTime.now());
-    int selectedYear = DateTime.now().year;
 
     showModalBottomSheet(
       context: context,
