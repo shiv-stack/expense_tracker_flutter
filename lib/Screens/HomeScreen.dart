@@ -105,15 +105,11 @@ class _MainScreenState extends State<MainScreen> {
             // borderRadius: BorderRadius.circular(20),
           ),
         ),
-        floatingActionButton: selectedIndex == 0
+        floatingActionButton: (selectedIndex == 0)
             ? FloatingActionButton.extended(
-                label: Row(
-                  spacing: 5,
-                  children: [
-                    Icon(Icons.add, color: Colors.white),
-                    Text("Add Expense", style: TextStyle(color: Colors.white)),
-                  ],
-                ),
+                extendedPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                label: Text("Add Expense", style: TextStyle(color: Colors.white)),
+                icon: Icon(Icons.add, color: Colors.white),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -515,7 +511,7 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                       )),
                   const SizedBox(height: 20),
                   SizedBox(
-                    height: 250,
+                    height: 300,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -605,6 +601,7 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                       ),
                     ],
                   ),
+                  SizedBox(height: 60),
                 ],
               ),
             );
