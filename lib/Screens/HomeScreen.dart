@@ -443,13 +443,13 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              date,
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 12,
-                              ),
-                            ),
+                            // Text(
+                            //   date,
+                            //   style: const TextStyle(
+                            //     color: Colors.grey,
+                            //     fontSize: 12,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ],
