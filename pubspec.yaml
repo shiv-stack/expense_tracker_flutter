@@ -43,6 +43,10 @@ dependencies:
   hive_flutter: ^1.1.0
   fl_chart: ^0.63.0 
   collection: ^1.18.0
+  persistent_bottom_nav_bar_v2: ^6.1.0
+  package_info_plus: ^8.3.0
+  share_plus: ^11.0.0
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +78,11 @@ flutter:
     - assets/ic_topbar.png
     - assets/avatar.png
     - assets/expensemanager_logo.png
+    - assets/expense_app_logo.png
+    - assets/analytics.png
+    - assets/home.png
+    - assets/profile.png
+    - assets/appIcons/
     
 
   # An image asset can refer to one or more resolution-specific "variants", see

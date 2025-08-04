@@ -1,6 +1,7 @@
 import 'package:expensely_app/bloc/expense_bloc.dart';
 import 'package:expensely_app/bloc/expense_state.dart';
-import 'package:expensely_app/constants/colors..dart';
+import 'package:expensely_app/constants/colors.dart';
+import 'package:expensely_app/constants/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -283,14 +284,14 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem(Colors.green.shade600, 'Income', income),
+        _buildLegendItem(Colors.green.shade600, 'Income', income.formatWithCommas()),
         const SizedBox(width: 20),
-        _buildLegendItem(Colors.red.shade600, 'Expense', expense),
+        _buildLegendItem(Colors.red.shade600, 'Expense', expense.formatWithCommas()),
       ],
     );
   }
 
-  Widget _buildLegendItem(Color color, String title, double value) {
+  Widget _buildLegendItem(Color color, String title, String value) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -303,7 +304,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           ),
         ),
         const SizedBox(width: 8),
-        Text('$title: ${value.toStringAsFixed(0)}'),
+        Text('$title: $value'),
       ],
     );
   }
@@ -428,38 +429,21 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                             LineChartBarData(
                               spots: spots,
                               isCurved: true,
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.blue.shade300,
-                                  Colors.blue.shade700,
-                                ],
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                              ),
-                              barWidth: 4,
+                              color: primaryColor,
+                              barWidth: 2,
                               isStrokeCapRound: true,
                               dotData: FlDotData(
                                 show: true,
                                 getDotPainter: (spot, percent, bar, index) {
                                   return FlDotCirclePainter(
-                                    radius: 5,
-                                    color: Colors.blueAccent.shade700,
+                                    radius: 3,
+                                    color: primaryColor,
                                     strokeColor: Colors.white,
                                     strokeWidth: 2,
                                   );
                                 },
                               ),
-                              belowBarData: BarAreaData(
-                                show: true,
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.blue.shade700.withOpacity(0.3),
-                                    Colors.blue.shade300.withOpacity(0),
-                                  ],
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                ),
-                              ),
+                              belowBarData: BarAreaData(show: true, color: primaryColor.withValues(alpha: .14)),
                             )
                           ],
                         ),
@@ -589,12 +573,12 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     for (int i = 0; i < top4Expenses.length; i++) {
       final item = top4Expenses[i];
       legendItems.add(
-        _buildLegendItem(colors[i % colors.length], item['category'], item['amount']),
+        _buildLegendItem(colors[i % colors.length], item['category'], (item['amount'] as double).formatWithCommas()),
       );
     }
     if (otherAmount > 0) {
       legendItems.add(
-        _buildLegendItem(Colors.grey.shade400, 'Other', otherAmount),
+        _buildLegendItem(Colors.grey.shade400, 'Other', otherAmount.formatWithCommas()),
       );
     }
 
@@ -621,7 +605,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
 
     final totalIncomeYear = data.fold<double>(0, (sum, item) => sum + (item['income'] as double));
     final totalExpenseYear = data.fold<double>(0, (sum, item) => sum + (item['expense'] as double));
-    final totalBalanceYear = totalIncomeYear - totalExpenseYear;
+    final totalBalanceYear = (totalIncomeYear - totalExpenseYear);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -667,23 +651,23 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                                 final balance = (e['income'] as double) - (e['expense'] as double);
                                 return DataRow(cells: [
                                   DataCell(Text(e['month'])), // Displaying the month name
-                                  DataCell(Text((e['income'] as double).toStringAsFixed(0),
+                                  DataCell(Text((e['income'] as double).formatWithCommas(),
                                       style: const TextStyle(color: Colors.green))),
-                                  DataCell(Text((e['expense'] as double).toStringAsFixed(0),
+                                  DataCell(Text((e['expense'] as double).formatWithCommas(),
                                       style: const TextStyle(color: Colors.red))),
-                                  DataCell(Text(balance.toStringAsFixed(0),
+                                  DataCell(Text(balance.formatWithCommas(),
                                       style: TextStyle(color: balance >= 0 ? Colors.blue : Colors.deepOrange))),
                                 ]);
-                              }).toList(),
+                              }),
                               DataRow(
-                                color: MaterialStateProperty.all(Colors.grey.shade100),
+                                color: WidgetStateProperty.all(Colors.grey.shade100),
                                 cells: [
                                   const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataCell(Text(totalIncomeYear.toStringAsFixed(0),
+                                  DataCell(Text(totalIncomeYear.formatWithCommas(),
                                       style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green))),
-                                  DataCell(Text(totalExpenseYear.toStringAsFixed(0),
+                                  DataCell(Text(totalExpenseYear.formatWithCommas(),
                                       style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red))),
-                                  DataCell(Text(totalBalanceYear.toStringAsFixed(0),
+                                  DataCell(Text(totalBalanceYear.formatWithCommas(),
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: totalBalanceYear >= 0 ? Colors.blue : Colors.deepOrange))),
