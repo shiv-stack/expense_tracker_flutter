@@ -1,4 +1,4 @@
-import 'package:expensely_app/constants/colors..dart';
+import 'package:expensely_app/constants/colors.dart';
 import 'package:flutter/material.dart';
 import '../models/category_model.dart';
 import '../constants/category_data.dart';
@@ -92,7 +92,7 @@ class _CategoryModalSheetState extends State<CategoryModalSheet> {
                             children: [
                               CircleAvatar(
                                 radius: 24,
-                                backgroundColor: Colors.white,
+                                backgroundColor: primaryColor.withValues(alpha: .1),
                                 child: Icon(
                                   cat.icon,
                                   color: primaryColor,

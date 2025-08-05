@@ -2,6 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:expensely_app/bloc/expense_bloc.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
 import 'package:expensely_app/models/category_model.dart';
+import 'package:expensely_app/services/shared_prefs_service.dart';
 import 'package:expensely_app/widgets/category_modal_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -153,7 +154,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       labelText: 'Amount',
-                      prefixText: '₹',
+                      prefixText: SharedPrefService.getCurrency(),
                       suffixIcon: TextButton(
                         onPressed: () {
                           amountController.clear();

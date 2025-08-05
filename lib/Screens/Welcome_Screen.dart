@@ -1,12 +1,9 @@
 import 'package:expensely_app/services/shared_prefs_service.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'HomeScreen.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  final SharedPrefsService prefsService;
-
-  const WelcomeScreen({super.key, required this.prefsService});
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -17,13 +14,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _saveNameAndNavigate() async {
     final name = _nameController.text.trim();
     if (name.isNotEmpty) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userName', name);
+      await SharedPrefService.saveData('userName', name);
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => HomeScreen(userName: name),
+          builder: (_) => MainScreen(),
         ),
       );
     }
@@ -38,8 +34,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top,
+              minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
             ),
             child: IntrinsicHeight(
               child: Column(
@@ -86,8 +81,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: Color(
-                              0xFF127A64), // 🟢 outline color when focused
+                          color: Color(0xFF127A64), // 🟢 outline color when focused
                           width: 2,
                         ),
                       ),
