@@ -193,7 +193,7 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
 
           return CustomScrollView(
             slivers: [
-              SliverToBoxAdapter(child: _buildHeader(state)),
+              SliverToBoxAdapter(child: _buildHeader(transactions)),
               if (transactions.isEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
@@ -214,7 +214,11 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
 
   // All your helper methods (_buildHeader, _buildGroupedTransactionSlivers, etc.) remain here
 
-  Widget _buildHeader(ExpenseState state) {
+  Widget _buildHeader(List<Transaction> transactions) {
+    var totalIncome = transactions.where((t) => t.isIncome).fold(0.0, (sum, t) => sum + t.amount);
+    var totalExpenses = transactions.where((t) => !t.isIncome).fold(0.0, (sum, t) => sum + t.amount);
+    var totalBalance = totalIncome - totalExpenses;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
       width: double.infinity,
@@ -285,7 +289,7 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  "${SharedPrefService.getCurrency()} ${state.totalBalance.formatWithCommas()}",
+                  "${SharedPrefService.getCurrency()} ${totalBalance.formatWithCommas()}",
                   style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 5),
@@ -299,7 +303,7 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                             backgroundColor: Colors.white12,
                             child: Icon(Icons.arrow_downward, size: 18, color: Colors.green)),
                         const SizedBox(height: 5),
-                        Text("${SharedPrefService.getCurrency()} ${state.totalIncome.formatWithCommas()}",
+                        Text("${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
                             style: const TextStyle(color: Colors.white)),
                         const Text("Income", style: TextStyle(color: Colors.white70)),
                       ],
@@ -311,7 +315,7 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                             backgroundColor: Colors.white12,
                             child: Icon(Icons.arrow_upward, size: 18, color: Colors.red)),
                         const SizedBox(height: 5),
-                        Text("${SharedPrefService.getCurrency()} ${state.totalExpenses.formatWithCommas()}",
+                        Text("${SharedPrefService.getCurrency()} ${totalExpenses.formatWithCommas()}",
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                         const Text("Expenses", style: TextStyle(color: Colors.white70)),
                       ],
@@ -443,13 +447,6 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                               ),
                             ),
                             const SizedBox(height: 4),
-                            // Text(
-                            //   date,
-                            //   style: const TextStyle(
-                            //     color: Colors.grey,
-                            //     fontSize: 12,
-                            //   ),
-                            // ),
                           ],
                         ),
                       ],
