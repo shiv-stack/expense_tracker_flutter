@@ -38,12 +38,13 @@ class _MainScreenState extends State<MainScreen> {
         PersistentTabConfig(
           screen: DashboardTab(userName: userName),
           item: ItemConfig(
-            icon: Image.asset(
-              'assets/home.png',
-              width: 24,
-              height: 24,
-              color: selectedIndex == 0 ? primaryColor : Colors.grey,
-            ),
+            icon: Icon(Icons.home_rounded),
+            // Image.asset(
+            //   'assets/home.png',
+            //   width: 24,
+            //   height: 24,
+            //   color: selectedIndex == 0 ? primaryColor : Colors.grey,
+            // ),
             title: "Home",
             activeForegroundColor: primaryColor,
             inactiveBackgroundColor: Colors.grey,
@@ -52,12 +53,13 @@ class _MainScreenState extends State<MainScreen> {
         PersistentTabConfig(
           screen: const ReportScreen(), // Your existing Chart_Screen
           item: ItemConfig(
-            icon: Image.asset(
-              'assets/analytics.png',
-              width: 24,
-              height: 24,
-              color: selectedIndex == 1 ? primaryColor : Colors.grey,
-            ),
+            icon:Icon(Icons.bar_chart_rounded),
+            //  Image.asset(
+            //   'assets/analytics.png',
+            //   width: 24,
+            //   height: 24,
+            //   color: selectedIndex == 1 ? primaryColor : Colors.grey,
+            // ),
             title: "Reports",
             activeForegroundColor: primaryColor,
             inactiveBackgroundColor: Colors.grey,
@@ -66,12 +68,13 @@ class _MainScreenState extends State<MainScreen> {
         PersistentTabConfig(
           screen: ProfileScreen(), // Placeholder for Profile
           item: ItemConfig(
-            icon: Image.asset(
-              'assets/profile.png',
-              width: 24,
-              height: 24,
-              color: selectedIndex == 2 ? primaryColor : Colors.grey,
-            ),
+            icon: Icon(Icons.person_rounded),
+            // Image.asset(
+            //   'assets/profile.png',
+            //   width: 24,
+            //   height: 24,
+            //   color: selectedIndex == 2 ? primaryColor : Colors.grey,
+            // ),
             title: "Profile",
             activeForegroundColor: primaryColor,
             inactiveBackgroundColor: Colors.grey,
