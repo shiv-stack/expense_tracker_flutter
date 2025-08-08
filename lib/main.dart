@@ -20,6 +20,8 @@ void main() async {
   Hive.registerAdapter(TransactionAdapter());
   Hive.registerAdapter(CategoryModelAdapter());
   await Hive.openBox<Transaction>('transactionsBox');
+  await Hive.openBox<CategoryModel>('categoriesBox');
+
 
   final savedName = SharedPrefService.getData("userName"); // ⬅️ Get instance
 

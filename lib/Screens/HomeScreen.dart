@@ -1,9 +1,11 @@
 import 'package:expensely_app/Screens/profile_screen.dart';
 import 'package:expensely_app/constants/colors.dart';
+import 'package:expensely_app/models/category_model.dart';
 import 'package:expensely_app/services/shared_prefs_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:collection/collection.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
@@ -15,6 +17,7 @@ import 'package:expensely_app/bloc/expense_state.dart';
 import 'package:expensely_app/constants/extensions.dart';
 import 'package:expensely_app/models/transaction.dart';
 import 'package:expensely_app/utils/icon_map.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 /// The new main widget that holds the persistent navigation bar.
 class MainScreen extends StatefulWidget {
@@ -53,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
         PersistentTabConfig(
           screen: const ReportScreen(), // Your existing Chart_Screen
           item: ItemConfig(
-            icon:Icon(Icons.bar_chart_rounded),
+            icon: Icon(Icons.bar_chart_rounded),
             //  Image.asset(
             //   'assets/analytics.png',
             //   width: 24,
@@ -110,13 +113,15 @@ class _MainScreenState extends State<MainScreen> {
         ),
         floatingActionButton: (selectedIndex == 0)
             ? FloatingActionButton.extended(
-                extendedPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                label: Text("Add Expense", style: TextStyle(color: Colors.white)),
+                extendedPadding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                label:
+                    Text("Add Expense", style: TextStyle(color: Colors.white)),
                 icon: Icon(Icons.add, color: Colors.white),
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AddExpenseScreen()),
+                    MaterialPageRoute(builder: (context) => AddExpenseScreen()),
                   );
                 },
                 backgroundColor: primaryColor,
@@ -135,7 +140,8 @@ class DashboardTab extends StatefulWidget {
   State<DashboardTab> createState() => _DashboardTabState();
 }
 
-class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderStateMixin {
+class _DashboardTabState extends State<DashboardTab>
+    with SingleTickerProviderStateMixin {
   bool isFilterApplied = false;
   String selectedMonth = DateFormat.MMMM().format(DateTime.now());
   int selectedYear = DateTime.now().year;
@@ -158,8 +164,10 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
     super.dispose();
   }
 
-  Map<String, List<Transaction>> _groupTransactionsByDate(List<Transaction> transactions) {
-    return groupBy(transactions, (t) => DateFormat('yyyy-MM-dd').format(t.date));
+  Map<String, List<Transaction>> _groupTransactionsByDate(
+      List<Transaction> transactions) {
+    return groupBy(
+        transactions, (t) => DateFormat('yyyy-MM-dd').format(t.date));
   }
 
   String _formatDateHeader(String dateStr) {
@@ -167,9 +175,13 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    if (date.year == today.year && date.month == today.month && date.day == today.day) {
+    if (date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day) {
       return 'Today';
-    } else if (date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day) {
+    } else if (date.year == yesterday.year &&
+        date.month == yesterday.month &&
+        date.day == yesterday.day) {
       return 'Yesterday';
     } else {
       return DateFormat.yMMMMd().format(date);
@@ -184,10 +196,13 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
         builder: (context, state) {
           final transactions = state.transactions.where((t) {
             if (isFilterApplied) {
-              final selectedMonthIndex = DateFormat.MMMM().parse(selectedMonth).month;
-              return t.date.month == selectedMonthIndex && t.date.year == selectedYear;
+              final selectedMonthIndex =
+                  DateFormat.MMMM().parse(selectedMonth).month;
+              return t.date.month == selectedMonthIndex &&
+                  t.date.year == selectedYear;
             }
-            return t.date.month == DateTime.now().month && t.date.year == DateTime.now().year;
+            return t.date.month == DateTime.now().month &&
+                t.date.year == DateTime.now().year;
           }).toList()
             ..sort((a, b) => b.date.compareTo(a.date));
 
@@ -202,12 +217,15 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                   hasScrollBody: false,
                   child: Center(
                     child: Text('No transactions for this period.',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+                        style:
+                            TextStyle(color: Colors.grey[600], fontSize: 16)),
                   ),
                 )
               else
-                ..._buildGroupedTransactionSlivers(groupedTransactions, sortedDates),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)), // Space for FAB
+                ..._buildGroupedTransactionSlivers(
+                    groupedTransactions, sortedDates),
+              const SliverToBoxAdapter(
+                  child: SizedBox(height: 100)), // Space for FAB
             ],
           );
         },
@@ -218,8 +236,12 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
   // All your helper methods (_buildHeader, _buildGroupedTransactionSlivers, etc.) remain here
 
   Widget _buildHeader(List<Transaction> transactions) {
-    var totalIncome = transactions.where((t) => t.isIncome).fold(0.0, (sum, t) => sum + t.amount);
-    var totalExpenses = transactions.where((t) => !t.isIncome).fold(0.0, (sum, t) => sum + t.amount);
+    var totalIncome = transactions
+        .where((t) => t.isIncome)
+        .fold(0.0, (sum, t) => sum + t.amount);
+    var totalExpenses = transactions
+        .where((t) => !t.isIncome)
+        .fold(0.0, (sum, t) => sum + t.amount);
     var totalBalance = totalIncome - totalExpenses;
 
     return Container(
@@ -248,7 +270,10 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                   const SizedBox(height: 4),
                   Text(
                     widget.userName,
-                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -264,7 +289,8 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                       onPressed: () {
                         setState(() {
                           isFilterApplied = false;
-                          selectedMonth = DateFormat.MMMM().format(DateTime.now());
+                          selectedMonth =
+                              DateFormat.MMMM().format(DateTime.now());
                           selectedYear = DateTime.now().year;
                         });
                         context.read<ExpenseBloc>().add(LoadTransactions());
@@ -280,20 +306,27 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
             decoration: BoxDecoration(
               color: const Color(0xFF127A64),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4))],
+              boxShadow: const [
+                BoxShadow(
+                    color: Colors.black12, blurRadius: 10, offset: Offset(0, 4))
+              ],
             ),
             child: Column(
               children: [
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Total Balance", style: TextStyle(color: Colors.white)),
+                    Text("Total Balance",
+                        style: TextStyle(color: Colors.white)),
                   ],
                 ),
                 const SizedBox(height: 5),
                 Text(
                   "${SharedPrefService.getCurrency()} ${totalBalance.formatWithCommas()}",
-                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 5),
                 Row(
@@ -304,11 +337,14 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                         const CircleAvatar(
                             radius: 15,
                             backgroundColor: Colors.white12,
-                            child: Icon(Icons.arrow_downward, size: 18, color: Colors.green)),
+                            child: Icon(Icons.arrow_downward,
+                                size: 18, color: Colors.green)),
                         const SizedBox(height: 5),
-                        Text("${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
+                        Text(
+                            "${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
                             style: const TextStyle(color: Colors.white)),
-                        const Text("Income", style: TextStyle(color: Colors.white70)),
+                        const Text("Income",
+                            style: TextStyle(color: Colors.white70)),
                       ],
                     ),
                     Column(
@@ -316,11 +352,16 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                         const CircleAvatar(
                             radius: 15,
                             backgroundColor: Colors.white12,
-                            child: Icon(Icons.arrow_upward, size: 18, color: Colors.red)),
+                            child: Icon(Icons.arrow_upward,
+                                size: 18, color: Colors.red)),
                         const SizedBox(height: 5),
-                        Text("${SharedPrefService.getCurrency()} ${totalExpenses.formatWithCommas()}",
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                        const Text("Expenses", style: TextStyle(color: Colors.white70)),
+                        Text(
+                            "${SharedPrefService.getCurrency()} ${totalExpenses.formatWithCommas()}",
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500)),
+                        const Text("Expenses",
+                            style: TextStyle(color: Colors.white70)),
                       ],
                     ),
                   ],
@@ -334,13 +375,16 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
   }
 
   List<Widget> _buildGroupedTransactionSlivers(
-      Map<String, List<Transaction>> groupedTransactions, List<String> sortedDates) {
+      Map<String, List<Transaction>> groupedTransactions,
+      List<String> sortedDates) {
     return sortedDates.map((dateKey) {
       final transactionsOnDate = groupedTransactions[dateKey]!;
-      final double dailyIncome =
-          transactionsOnDate.where((t) => t.isIncome).fold(0.0, (sum, item) => sum + item.amount);
-      final double dailyExpense =
-          transactionsOnDate.where((t) => !t.isIncome).fold(0.0, (sum, item) => sum + item.amount);
+      final double dailyIncome = transactionsOnDate
+          .where((t) => t.isIncome)
+          .fold(0.0, (sum, item) => sum + item.amount);
+      final double dailyExpense = transactionsOnDate
+          .where((t) => !t.isIncome)
+          .fold(0.0, (sum, item) => sum + item.amount);
       return SliverMainAxisGroup(
         slivers: [
           SliverPersistentHeader(
@@ -356,12 +400,13 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
               (context, index) {
                 final transaction = transactionsOnDate[index];
                 return _buildTransaction(
-                    transaction.title,
-                    DateFormat.MMMd().format(transaction.date), // "Aug 04"
-                    "${transaction.isIncome ? '+' : '-'} ${SharedPrefService.getCurrency()} ${transaction.amount.formatWithCommas()}",
-                    transaction.isIncome ? Colors.green : Colors.red,
-                    transaction.note,
-                    transaction.category.name);
+                  transaction.title,
+                  DateFormat.MMMd().format(transaction.date), // "Aug 04"
+                  "${transaction.isIncome ? '+' : '-'} ${SharedPrefService.getCurrency()} ${transaction.amount.formatWithCommas()}",
+                  transaction.isIncome ? Colors.green : Colors.red,
+                  transaction.note,
+                  transaction.category.name, transaction,
+                );
               },
               childCount: transactionsOnDate.length,
             ),
@@ -371,95 +416,133 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
     }).toList();
   }
 
-  Widget _buildTransaction(String title, String date, String amount, Color color, String note, String categoryName) {
+  Widget _buildTransaction(
+    String title,
+    String date,
+    String amount,
+    Color color,
+    String note,
+    String categoryName,
+    Transaction transaction,
+  ) {
     final icon = iconMap[categoryName.toLowerCase()] ?? Icons.category;
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-      child: AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, child) {
-          return FadeTransition(
-            opacity: _animationController,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.5),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut)),
-              child: Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                elevation: 2,
-                shadowColor: Colors.black.withOpacity(0.1),
-                child: InkWell(
+    return Slidable(
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (_) => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => AddExpenseScreen(editingTx: transaction)),
+            ),
+            //trigger update
+            icon: Icons.edit,
+            label: 'Edit',
+            backgroundColor: Colors.blue,
+          ),
+          SlidableAction(
+            onPressed: (context) {
+              // Trigger delete event
+              context
+                  .read<ExpenseBloc>()
+                  .add(DeleteTransaction(transaction.id));
+            },
+            icon: Icons.delete,
+            label: 'Delete',
+            backgroundColor: Colors.red,
+          ),
+        ],
+      ),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+        child: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return FadeTransition(
+              opacity: _animationController,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.5),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                    parent: _animationController, curve: Curves.easeOut)),
+                child: Material(
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  onTap: () {},
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            gradient: getGradientForCategory(categoryName),
-                            shape: BoxShape.circle,
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {},
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              gradient: getGradientForCategory(categoryName),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(icon, color: Colors.white, size: 24),
                           ),
-                          child: Icon(icon, color: Colors.white, size: 24),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                title,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (note.isNotEmpty) ...[
-                                const SizedBox(height: 4),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
                                 Text(
-                                  note,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
+                                  title,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                              ]
+                                if (note.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    note,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ]
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                amount,
+                                style: TextStyle(
+                                  color: color,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              amount,
-                              style: TextStyle(
-                                color: color,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -524,9 +607,14 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                               return ListTile(
                                 title: Text(month,
                                     style: TextStyle(
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     )),
-                                trailing: isSelected ? const Icon(Icons.check, color: primaryColor) : null,
+                                trailing: isSelected
+                                    ? const Icon(Icons.check,
+                                        color: primaryColor)
+                                    : null,
                                 onTap: () {
                                   setSheetState(() {
                                     tempSelectedMonth = month;
@@ -545,9 +633,14 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                               return ListTile(
                                 title: Text("$year",
                                     style: TextStyle(
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     )),
-                                trailing: isSelected ? const Icon(Icons.check, color: primaryColor) : null,
+                                trailing: isSelected
+                                    ? const Icon(Icons.check,
+                                        color: primaryColor)
+                                    : null,
                                 onTap: () {
                                   setSheetState(() {
                                     tempSelectedYear = year;
@@ -574,7 +667,8 @@ class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderSt
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                           onPressed: () => Navigator.pop(context),
-                          child: const Text("Cancel", style: TextStyle(color: primaryColor)),
+                          child: const Text("Cancel",
+                              style: TextStyle(color: primaryColor)),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -620,10 +714,14 @@ class _SliverDateHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double totalExpense;
 
   _SliverDateHeaderDelegate(
-      {required this.title, required this.totalIncome, required this.totalExpense, this.height = 30.0});
+      {required this.title,
+      required this.totalIncome,
+      required this.totalExpense,
+      this.height = 30.0});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       height: height,
       alignment: Alignment.centerLeft,
@@ -634,16 +732,22 @@ class _SliverDateHeaderDelegate extends SliverPersistentHeaderDelegate {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
+            style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black54),
           ),
           Row(
             children: [
               if (totalIncome > 0)
-                Text("Income: ${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
+                Text(
+                    "Income: ${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
                     style: const TextStyle(color: Colors.green)),
-              if (totalIncome > 0 && totalExpense > 0) const SizedBox(width: 10),
+              if (totalIncome > 0 && totalExpense > 0)
+                const SizedBox(width: 10),
               if (totalExpense > 0)
-                Text("Expense: ${SharedPrefService.getCurrency()} ${totalExpense.formatWithCommas()}",
+                Text(
+                    "Expense: ${SharedPrefService.getCurrency()} ${totalExpense.formatWithCommas()}",
                     style: const TextStyle(color: Colors.red)),
             ],
           )

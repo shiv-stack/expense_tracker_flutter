@@ -2,6 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:expensely_app/bloc/expense_bloc.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
 import 'package:expensely_app/models/category_model.dart';
+import 'package:expensely_app/models/transaction.dart';
 import 'package:expensely_app/services/shared_prefs_service.dart';
 import 'package:expensely_app/widgets/category_modal_sheet.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({Key? key}) : super(key: key);
+  final Transaction? editingTx;
+  AddExpenseScreen({Key? key, this.editingTx}) : super(key: key);
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -23,6 +25,26 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   TextEditingController amountController = TextEditingController();
   TextEditingController noteController = TextEditingController();
   DateTime selectedDate = DateTime.now(); //  today's date
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.editingTx != null) {
+      // Prefill for edit mode
+      final tx = widget.editingTx!;
+      selectedType = tx.isIncome ? 'Income' : 'Expense';
+      selectedCategory = tx.category;
+      amountController = TextEditingController(text: tx.amount.toString());
+      noteController = TextEditingController(text: tx.note);
+      selectedDate = tx.date;
+      // selectedService = tx.title; // If you want to show/edit the title
+    } else {
+      // Defaults for add mode
+      amountController = TextEditingController();
+      noteController = TextEditingController();
+      selectedDate = DateTime.now();
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -39,6 +61,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.editingTx != null;
     final primaryColor = const Color(0xFF1A8E74);
 
     return Scaffold(
@@ -49,18 +72,25 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             // Header with curved background
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 20),
+              padding: const EdgeInsets.only(
+                  top: 60, left: 20, right: 20, bottom: 20),
               decoration: BoxDecoration(
                 color: primaryColor,
                 borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(30),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   BackButton(color: Colors.white),
-                  Text("Add Expense", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    isEditing ? "Edit Transaction" : "Add Expense",
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  ),
                   SizedBox(width: 40)
                 ],
               ),
@@ -74,7 +104,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   // Category Dropdown
                   GestureDetector(
                     onTap: () async {
-                      final result = await showModalBottomSheet<Map<String, dynamic>>(
+                      final result =
+                          await showModalBottomSheet<Map<String, dynamic>>(
                         context: context,
                         isScrollControlled: true,
                         builder: (_) => CategoryModalSheet(
@@ -86,7 +117,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       if (result != null) {
                         setState(() {
                           selectedCategory = result['category'];
-                          selectedType = result['isIncome'] ? 'Income' : 'Expense';
+                          selectedType =
+                              result['isIncome'] ? 'Income' : 'Expense';
                         });
                       }
                     },
@@ -96,7 +128,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 20),
                       ),
                       child: Row(
                         children: [
@@ -151,7 +184,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   // Amount Input
                   TextFormField(
                     controller: amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       labelText: 'Amount',
                       prefixText: SharedPrefService.getCurrency(),
@@ -161,7 +195,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         },
                         child: const Text("Clear"),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   //note
@@ -181,7 +216,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   GestureDetector(
                     onTap: () => _selectDate(context),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 20),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey.shade300),
                         borderRadius: BorderRadius.circular(12),
@@ -219,7 +255,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                               child: const Center(
                                 child: Text(
                                   "🚧 This feature will roll out soon!",
-                                  style: TextStyle(color: Colors.black, fontSize: 16),
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16),
                                 ),
                               ),
                             ),
@@ -242,7 +279,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         width: double.infinity,
                         height: 70,
                         alignment: Alignment.center,
-                        child: const Text("+ Add Invoice", style: TextStyle(color: Colors.grey)),
+                        child: const Text("+ Add Invoice",
+                            style: TextStyle(color: Colors.grey)),
                       ),
                     ),
                   ),
@@ -252,37 +290,55 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     width: 200,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF1A8E74), // ✅ Background color
+                        backgroundColor:
+                            Color(0xFF1A8E74), // ✅ Background color
                         foregroundColor: Colors.white, // ✅ Text/icon color
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       onPressed: () {
-                        if (amountController.text.isEmpty || selectedCategory == null) {
+                        if (amountController.text.isEmpty ||
+                            selectedCategory == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Please fill all fields")),
+                            const SnackBar(
+                                content: Text("Please fill all fields")),
                           );
                           return;
                         }
-                        final amount = double.tryParse(amountController.text) ?? 0.0;
+                        final amount =
+                            double.tryParse(amountController.text) ?? 0.0;
                         final isIncome = selectedType == 'Income';
 
-                        context.read<ExpenseBloc>().add(
-                              AddTransaction(
-                                title: selectedCategory?.name ?? "Unknown",
-                                amount: amount,
-                                date: selectedDate,
-                                isIncome: isIncome,
-                                category: selectedCategory!,
-                                note: noteController.text.trim(),
-                              ),
-                            );
-
+                        if (isEditing) {
+                          context.read<ExpenseBloc>().add(
+                                EditTransaction(
+                                  id: widget.editingTx!.id,
+                                  title: selectedCategory!.name,
+                                  amount: amount,
+                                  date: selectedDate,
+                                  isIncome: isIncome,
+                                  category: selectedCategory!,
+                                  note: noteController.text.trim(),
+                                ),
+                              );
+                        } else {
+                          context.read<ExpenseBloc>().add(
+                                AddTransaction(
+                                  title: selectedCategory!.name,
+                                  amount: amount,
+                                  date: selectedDate,
+                                  isIncome: isIncome,
+                                  category: selectedCategory!,
+                                  note: noteController.text.trim(),
+                                ),
+                              );
+                        }
                         Navigator.pop(context);
                       },
-                      child: const Text("Save"),
+                      child: Text(isEditing ? "Update" : "Save"),
                     ),
                   ),
                 ],
