@@ -3,7 +3,8 @@ class Currency {
   final String symbol;
   final String name;
 
-  const Currency({required this.code, required this.symbol, required this.name});
+  const Currency(
+      {required this.code, required this.symbol, required this.name});
 }
 
 final List<Currency> currencies = const [
@@ -17,7 +18,8 @@ final List<Currency> currencies = const [
   Currency(code: 'AUD', symbol: '\$', name: 'Australian Dollar'),
   Currency(code: 'AWG', symbol: 'ƒ', name: 'Aruban Florin'),
   Currency(code: 'AZN', symbol: '₼', name: 'Azerbaijani Manat'),
-  Currency(code: 'BAM', symbol: 'KM', name: 'Bosnia-Herzegovina Convertible Mark'),
+  Currency(
+      code: 'BAM', symbol: 'KM', name: 'Bosnia-Herzegovina Convertible Mark'),
   Currency(code: 'BBD', symbol: '\$', name: 'Barbadian Dollar'),
   Currency(code: 'BDT', symbol: '৳', name: 'Bangladeshi Taka'),
   Currency(code: 'BGN', symbol: 'лв', name: 'Bulgarian Lev'),
@@ -77,6 +79,7 @@ final List<Currency> currencies = const [
   Currency(code: 'JOD', symbol: 'JD', name: 'Jordanian Dinar'),
   Currency(code: 'JPY', symbol: '¥', name: 'Japanese Yen'),
   Currency(code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling'),
+  Currency(code: 'USD', symbol: '\$', name: 'United States Dollar'),
   Currency(code: 'ZAR', symbol: 'R', name: 'South African Rand'),
   Currency(code: 'ZMW', symbol: 'ZK', name: 'Zambian Kwacha'),
   Currency(code: 'ZWL', symbol: '\$', name: 'Zimbabwean Dollar'),
