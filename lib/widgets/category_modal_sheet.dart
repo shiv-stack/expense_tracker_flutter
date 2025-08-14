@@ -6,11 +6,13 @@ import '../constants/category_data.dart';
 class CategoryModalSheet extends StatefulWidget {
   final bool isExpense;
   final Function(CategoryModel) onCategorySelected;
+  final String? selectedCategory;
 
   const CategoryModalSheet({
     super.key,
     required this.isExpense,
     required this.onCategorySelected,
+    this.selectedCategory,
   });
 
   @override
@@ -19,7 +21,6 @@ class CategoryModalSheet extends StatefulWidget {
 
 class _CategoryModalSheetState extends State<CategoryModalSheet> {
   late bool isExpenseTab;
-
   @override
   void initState() {
     super.initState();
@@ -71,10 +72,16 @@ class _CategoryModalSheetState extends State<CategoryModalSheet> {
                 const SizedBox(height: 16),
                 Align(
                   alignment: Alignment.topLeft,
-                  child: Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    alignment: WrapAlignment.start,
+                  child: GridView.count(
+                    crossAxisCount: MediaQuery.of(context).size.width > 500
+                        ? 6
+                        : MediaQuery.of(context).size.width < 390
+                            ? 3
+                            : 4, // Number of columns
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    shrinkWrap: true, // So it doesn't take infinite height
+                    physics: const NeverScrollableScrollPhysics(), // Disable scrolling if inside a scroll view
                     children: categories.map((cat) {
                       return GestureDetector(
                         onTap: () {
@@ -84,25 +91,35 @@ class _CategoryModalSheetState extends State<CategoryModalSheet> {
                             'isIncome': !isExpenseTab,
                           });
                         },
-                        child: SizedBox(
-                          height: 90,
-                          width: 60,
+                        child: Container(
+                          padding: const EdgeInsets.all(6.0),
+                          decoration: BoxDecoration(
+                            color: widget.selectedCategory == cat.name ? primaryColor.withValues(alpha: .4) : null,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: primaryColor.withValues(alpha: .5),
+                            ),
+                          ),
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               CircleAvatar(
-                                radius: 24,
-                                backgroundColor: primaryColor.withValues(alpha: .1),
+                                radius: 20,
+                                backgroundColor: Colors.white,
                                 child: Icon(
                                   cat.icon,
                                   color: primaryColor,
+                                  size: 22,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 3),
                               Text(
                                 cat.name,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 12),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ],
                           ),
@@ -111,6 +128,7 @@ class _CategoryModalSheetState extends State<CategoryModalSheet> {
                     }).toList(),
                   ),
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           ),

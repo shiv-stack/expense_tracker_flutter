@@ -6,9 +6,13 @@ class CurrencyPickerDialog extends StatefulWidget {
   final List<Currency> currencies;
   final String selectedSymbol;
   final ValueChanged<String> onSelected;
-
+  final bool? showConfirmationDialog;
   const CurrencyPickerDialog(
-      {super.key, required this.currencies, required this.selectedSymbol, required this.onSelected});
+      {super.key,
+      required this.currencies,
+      required this.selectedSymbol,
+      required this.onSelected,
+      this.showConfirmationDialog = true});
 
   @override
   CurrencyPickerDialogState createState() => CurrencyPickerDialogState();
@@ -104,9 +108,14 @@ class CurrencyPickerDialogState extends State<CurrencyPickerDialog> {
                 return ListTile(
                   title: Text('${currency.name} (${currency.code})'),
                   trailing: isSelected ? const Icon(Icons.check, color: primaryColor) : null,
-                  tileColor: isSelected ? primaryColor.withOpacity(0.1) : null,
+                  tileColor: isSelected ? primaryColor.withValues(alpha: 0.1) : null,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  onTap: () => _showConfirmDialog(currency),
+                  onTap: widget.showConfirmationDialog!
+                      ? () => _showConfirmDialog(currency)
+                      : () {
+                          widget.onSelected(currency.symbol);
+                          Navigator.of(context).pop();
+                        },
                 );
               },
             ),

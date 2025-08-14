@@ -1,4 +1,6 @@
+import 'package:expensely_app/models/currency.dart';
 import 'package:expensely_app/services/shared_prefs_service.dart';
+import 'package:expensely_app/widgets/currency_picker_dialog.dart';
 import 'package:flutter/material.dart';
 import 'HomeScreen.dart';
 
@@ -11,9 +13,12 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _currencyController = TextEditingController();
+  String _currencySymbol = SharedPrefService.getCurrency(); // Default currency symbol
+
   void _saveNameAndNavigate() async {
     final name = _nameController.text.trim();
-    if (name.isNotEmpty) {
+    if (name.isNotEmpty && _currencyController.text.isNotEmpty) {
       await SharedPrefService.saveData('userName', name);
 
       Navigator.pushReplacement(
@@ -22,7 +27,44 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           builder: (_) => MainScreen(),
         ),
       );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(name.isEmpty ? 'Please enter your name' : 'Please select a currency'),
+        ),
+      );
     }
+  }
+
+  Future<void> _showCurrencyPicker() async {
+    showDialog(
+      context: context,
+      builder: (context) => CurrencyPickerDialog(
+        currencies: currencies,
+        showConfirmationDialog: false,
+        selectedSymbol: _currencySymbol,
+        onSelected: (newSymbol) {
+          _saveCurrency(newSymbol);
+        },
+      ),
+    );
+  }
+
+  Future<void> _saveCurrency(String newSymbol) async {
+    await SharedPrefService.saveData('currencySymbol', newSymbol);
+    _currencyController.text = newSymbol; // Update the text field with the new symbol
+    if (mounted) {
+      setState(() {
+        _currencySymbol = newSymbol;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _nameController.dispose();
+    _currencyController.dispose();
   }
 
   @override
@@ -83,6 +125,34 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         borderSide: const BorderSide(
                           color: Color(0xFF127A64), // 🟢 outline color when focused
                           width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  InkWell(
+                    onTap: _showCurrencyPicker,
+                    child: TextField(
+                      controller: _currencyController,
+                      enabled: false,
+                      decoration: InputDecoration(
+                        hintText: 'Select your currency',
+                        hintStyle: TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.white,
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.grey, // 🟢 outline color when not focused
+                            width: 2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF127A64), // 🟢 outline color when focused
+                            width: 2,
+                          ),
                         ),
                       ),
                     ),
