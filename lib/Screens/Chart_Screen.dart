@@ -234,9 +234,14 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 2)),
+                ],
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -342,9 +347,14 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 2)),
+                ],
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -533,9 +543,14 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 2)),
+                ],
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -614,9 +629,14 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 2)),
+                ],
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(

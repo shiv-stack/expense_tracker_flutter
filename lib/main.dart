@@ -22,7 +22,6 @@ void main() async {
   await Hive.openBox<Transaction>('transactionsBox');
   await Hive.openBox<CategoryModel>('categoriesBox');
 
-
   final savedName = SharedPrefService.getData("userName"); // ⬅️ Get instance
 
   runApp(
@@ -51,7 +50,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Poppins",
         scaffoldBackgroundColor: offWhiteColor,
-        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
+        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor, primaryContainer: Colors.white),
         bottomSheetTheme: BottomSheetThemeData(backgroundColor: offWhiteColor),
         useMaterial3: true,
       ),

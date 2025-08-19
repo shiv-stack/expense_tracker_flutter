@@ -1,11 +1,10 @@
 import 'package:expensely_app/Screens/profile_screen.dart';
 import 'package:expensely_app/constants/colors.dart';
-import 'package:expensely_app/models/category_model.dart';
+
 import 'package:expensely_app/services/shared_prefs_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:collection/collection.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
@@ -28,6 +27,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  bool _isAddExpenseOpen = false;
+
   late PersistentTabController _controller;
   int selectedIndex = 0;
   String get userName => SharedPrefService.getData("userName") ?? "User";
@@ -39,7 +40,14 @@ class _MainScreenState extends State<MainScreen> {
 
   List<PersistentTabConfig> _tabs() => [
         PersistentTabConfig(
-          screen: DashboardTab(userName: userName),
+          screen: DashboardTab(
+            userName: userName,
+            onAddOrEditExpense: (value) {
+              setState(() {
+                _isAddExpenseOpen = value;
+              });
+            },
+          ),
           item: ItemConfig(
             icon: Icon(Icons.home_rounded),
             // Image.asset(
@@ -111,17 +119,15 @@ class _MainScreenState extends State<MainScreen> {
             // borderRadius: BorderRadius.circular(20),
           ),
         ),
-        floatingActionButton: (selectedIndex == 0)
+        floatingActionButton: (selectedIndex == 0 && !_isAddExpenseOpen)
             ? FloatingActionButton.extended(
-                extendedPadding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                label:
-                    Text("Add Expense", style: TextStyle(color: Colors.white)),
+                extendedPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                label: Text("Add Expense", style: TextStyle(color: Colors.white)),
                 icon: Icon(Icons.add, color: Colors.white),
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AddExpenseScreen()),
+                    MaterialPageRoute(builder: (context) => AddExpenseAnimatedScreen()),
                   );
                 },
                 backgroundColor: primaryColor,
@@ -134,14 +140,15 @@ class _MainScreenState extends State<MainScreen> {
 /// This widget contains your original HomeScreen UI (the dashboard).
 class DashboardTab extends StatefulWidget {
   final String userName;
-  const DashboardTab({super.key, required this.userName});
+  final void Function(bool value) onAddOrEditExpense;
+
+  const DashboardTab({super.key, required this.userName, required this.onAddOrEditExpense});
 
   @override
   State<DashboardTab> createState() => _DashboardTabState();
 }
 
-class _DashboardTabState extends State<DashboardTab>
-    with SingleTickerProviderStateMixin {
+class _DashboardTabState extends State<DashboardTab> with SingleTickerProviderStateMixin {
   bool isFilterApplied = false;
   String selectedMonth = DateFormat.MMMM().format(DateTime.now());
   int selectedYear = DateTime.now().year;
@@ -164,10 +171,8 @@ class _DashboardTabState extends State<DashboardTab>
     super.dispose();
   }
 
-  Map<String, List<Transaction>> _groupTransactionsByDate(
-      List<Transaction> transactions) {
-    return groupBy(
-        transactions, (t) => DateFormat('yyyy-MM-dd').format(t.date));
+  Map<String, List<Transaction>> _groupTransactionsByDate(List<Transaction> transactions) {
+    return groupBy(transactions, (t) => DateFormat('yyyy-MM-dd').format(t.date));
   }
 
   String _formatDateHeader(String dateStr) {
@@ -175,13 +180,9 @@ class _DashboardTabState extends State<DashboardTab>
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    if (date.year == today.year &&
-        date.month == today.month &&
-        date.day == today.day) {
+    if (date.year == today.year && date.month == today.month && date.day == today.day) {
       return 'Today';
-    } else if (date.year == yesterday.year &&
-        date.month == yesterday.month &&
-        date.day == yesterday.day) {
+    } else if (date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day) {
       return 'Yesterday';
     } else {
       return DateFormat.yMMMMd().format(date);
@@ -196,13 +197,10 @@ class _DashboardTabState extends State<DashboardTab>
         builder: (context, state) {
           final transactions = state.transactions.where((t) {
             if (isFilterApplied) {
-              final selectedMonthIndex =
-                  DateFormat.MMMM().parse(selectedMonth).month;
-              return t.date.month == selectedMonthIndex &&
-                  t.date.year == selectedYear;
+              final selectedMonthIndex = DateFormat.MMMM().parse(selectedMonth).month;
+              return t.date.month == selectedMonthIndex && t.date.year == selectedYear;
             }
-            return t.date.month == DateTime.now().month &&
-                t.date.year == DateTime.now().year;
+            return t.date.month == DateTime.now().month && t.date.year == DateTime.now().year;
           }).toList()
             ..sort((a, b) => b.date.compareTo(a.date));
 
@@ -217,15 +215,12 @@ class _DashboardTabState extends State<DashboardTab>
                   hasScrollBody: false,
                   child: Center(
                     child: Text('No transactions for this period.',
-                        style:
-                            TextStyle(color: Colors.grey[600], fontSize: 16)),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 16)),
                   ),
                 )
               else
-                ..._buildGroupedTransactionSlivers(
-                    groupedTransactions, sortedDates),
-              const SliverToBoxAdapter(
-                  child: SizedBox(height: 100)), // Space for FAB
+                ..._buildGroupedTransactionSlivers(groupedTransactions, sortedDates),
+              const SliverToBoxAdapter(child: SizedBox(height: 100)), // Space for FAB
             ],
           );
         },
@@ -236,12 +231,8 @@ class _DashboardTabState extends State<DashboardTab>
   // All your helper methods (_buildHeader, _buildGroupedTransactionSlivers, etc.) remain here
 
   Widget _buildHeader(List<Transaction> transactions) {
-    var totalIncome = transactions
-        .where((t) => t.isIncome)
-        .fold(0.0, (sum, t) => sum + t.amount);
-    var totalExpenses = transactions
-        .where((t) => !t.isIncome)
-        .fold(0.0, (sum, t) => sum + t.amount);
+    var totalIncome = transactions.where((t) => t.isIncome).fold(0.0, (sum, t) => sum + t.amount);
+    var totalExpenses = transactions.where((t) => !t.isIncome).fold(0.0, (sum, t) => sum + t.amount);
     var totalBalance = totalIncome - totalExpenses;
 
     return Container(
@@ -270,10 +261,7 @@ class _DashboardTabState extends State<DashboardTab>
                   const SizedBox(height: 4),
                   Text(
                     widget.userName,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -289,8 +277,7 @@ class _DashboardTabState extends State<DashboardTab>
                       onPressed: () {
                         setState(() {
                           isFilterApplied = false;
-                          selectedMonth =
-                              DateFormat.MMMM().format(DateTime.now());
+                          selectedMonth = DateFormat.MMMM().format(DateTime.now());
                           selectedYear = DateTime.now().year;
                         });
                         context.read<ExpenseBloc>().add(LoadTransactions());
@@ -306,27 +293,20 @@ class _DashboardTabState extends State<DashboardTab>
             decoration: BoxDecoration(
               color: const Color(0xFF127A64),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                    color: Colors.black12, blurRadius: 10, offset: Offset(0, 4))
-              ],
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4))],
             ),
             child: Column(
               children: [
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Total Balance",
-                        style: TextStyle(color: Colors.white)),
+                    Text("Total Balance", style: TextStyle(color: Colors.white)),
                   ],
                 ),
                 const SizedBox(height: 5),
                 Text(
                   "${SharedPrefService.getCurrency()} ${totalBalance.formatWithCommas()}",
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600),
+                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 5),
                 Row(
@@ -337,14 +317,11 @@ class _DashboardTabState extends State<DashboardTab>
                         const CircleAvatar(
                             radius: 15,
                             backgroundColor: Colors.white12,
-                            child: Icon(Icons.arrow_downward,
-                                size: 18, color: Colors.green)),
+                            child: Icon(Icons.arrow_downward, size: 18, color: Colors.green)),
                         const SizedBox(height: 5),
-                        Text(
-                            "${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
+                        Text("${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
                             style: const TextStyle(color: Colors.white)),
-                        const Text("Income",
-                            style: TextStyle(color: Colors.white70)),
+                        const Text("Income", style: TextStyle(color: Colors.white70)),
                       ],
                     ),
                     Column(
@@ -352,16 +329,11 @@ class _DashboardTabState extends State<DashboardTab>
                         const CircleAvatar(
                             radius: 15,
                             backgroundColor: Colors.white12,
-                            child: Icon(Icons.arrow_upward,
-                                size: 18, color: Colors.red)),
+                            child: Icon(Icons.arrow_upward, size: 18, color: Colors.red)),
                         const SizedBox(height: 5),
-                        Text(
-                            "${SharedPrefService.getCurrency()} ${totalExpenses.formatWithCommas()}",
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500)),
-                        const Text("Expenses",
-                            style: TextStyle(color: Colors.white70)),
+                        Text("${SharedPrefService.getCurrency()} ${totalExpenses.formatWithCommas()}",
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                        const Text("Expenses", style: TextStyle(color: Colors.white70)),
                       ],
                     ),
                   ],
@@ -375,16 +347,13 @@ class _DashboardTabState extends State<DashboardTab>
   }
 
   List<Widget> _buildGroupedTransactionSlivers(
-      Map<String, List<Transaction>> groupedTransactions,
-      List<String> sortedDates) {
+      Map<String, List<Transaction>> groupedTransactions, List<String> sortedDates) {
     return sortedDates.map((dateKey) {
       final transactionsOnDate = groupedTransactions[dateKey]!;
-      final double dailyIncome = transactionsOnDate
-          .where((t) => t.isIncome)
-          .fold(0.0, (sum, item) => sum + item.amount);
-      final double dailyExpense = transactionsOnDate
-          .where((t) => !t.isIncome)
-          .fold(0.0, (sum, item) => sum + item.amount);
+      final double dailyIncome =
+          transactionsOnDate.where((t) => t.isIncome).fold(0.0, (sum, item) => sum + item.amount);
+      final double dailyExpense =
+          transactionsOnDate.where((t) => !t.isIncome).fold(0.0, (sum, item) => sum + item.amount);
       return SliverMainAxisGroup(
         slivers: [
           SliverPersistentHeader(
@@ -431,11 +400,18 @@ class _DashboardTabState extends State<DashboardTab>
         motion: const DrawerMotion(),
         children: [
           SlidableAction(
-            onPressed: (_) => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => AddExpenseScreen(editingTx: transaction)),
-            ),
+            onPressed: (_) {
+              widget.onAddOrEditExpense(true);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddExpenseAnimatedScreen(
+                          editingTx: transaction,
+                        )),
+              ).then((_) {
+                widget.onAddOrEditExpense(false);
+              });
+            },
             //trigger update
             icon: Icons.edit,
             label: 'Edit',
@@ -444,9 +420,7 @@ class _DashboardTabState extends State<DashboardTab>
           SlidableAction(
             onPressed: (context) {
               // Trigger delete event
-              context
-                  .read<ExpenseBloc>()
-                  .add(DeleteTransaction(transaction.id));
+              context.read<ExpenseBloc>().add(DeleteTransaction(transaction.id));
             },
             icon: Icons.delete,
             label: 'Delete',
@@ -465,8 +439,7 @@ class _DashboardTabState extends State<DashboardTab>
                 position: Tween<Offset>(
                   begin: const Offset(0, 0.5),
                   end: Offset.zero,
-                ).animate(CurvedAnimation(
-                    parent: _animationController, curve: Curves.easeOut)),
+                ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut)),
                 child: Material(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -607,14 +580,9 @@ class _DashboardTabState extends State<DashboardTab>
                               return ListTile(
                                 title: Text(month,
                                     style: TextStyle(
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                     )),
-                                trailing: isSelected
-                                    ? const Icon(Icons.check,
-                                        color: primaryColor)
-                                    : null,
+                                trailing: isSelected ? const Icon(Icons.check, color: primaryColor) : null,
                                 onTap: () {
                                   setSheetState(() {
                                     tempSelectedMonth = month;
@@ -633,14 +601,9 @@ class _DashboardTabState extends State<DashboardTab>
                               return ListTile(
                                 title: Text("$year",
                                     style: TextStyle(
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                     )),
-                                trailing: isSelected
-                                    ? const Icon(Icons.check,
-                                        color: primaryColor)
-                                    : null,
+                                trailing: isSelected ? const Icon(Icons.check, color: primaryColor) : null,
                                 onTap: () {
                                   setSheetState(() {
                                     tempSelectedYear = year;
@@ -667,8 +630,7 @@ class _DashboardTabState extends State<DashboardTab>
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                           onPressed: () => Navigator.pop(context),
-                          child: const Text("Cancel",
-                              style: TextStyle(color: primaryColor)),
+                          child: const Text("Cancel", style: TextStyle(color: primaryColor)),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -714,14 +676,10 @@ class _SliverDateHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double totalExpense;
 
   _SliverDateHeaderDelegate(
-      {required this.title,
-      required this.totalIncome,
-      required this.totalExpense,
-      this.height = 30.0});
+      {required this.title, required this.totalIncome, required this.totalExpense, this.height = 30.0});
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       height: height,
       alignment: Alignment.centerLeft,
@@ -732,22 +690,16 @@ class _SliverDateHeaderDelegate extends SliverPersistentHeaderDelegate {
         children: [
           Text(
             title,
-            style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black54),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
           ),
           Row(
             children: [
               if (totalIncome > 0)
-                Text(
-                    "Income: ${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
+                Text("Income: ${SharedPrefService.getCurrency()} ${totalIncome.formatWithCommas()}",
                     style: const TextStyle(color: Colors.green)),
-              if (totalIncome > 0 && totalExpense > 0)
-                const SizedBox(width: 10),
+              if (totalIncome > 0 && totalExpense > 0) const SizedBox(width: 10),
               if (totalExpense > 0)
-                Text(
-                    "Expense: ${SharedPrefService.getCurrency()} ${totalExpense.formatWithCommas()}",
+                Text("Expense: ${SharedPrefService.getCurrency()} ${totalExpense.formatWithCommas()}",
                     style: const TextStyle(color: Colors.red)),
             ],
           )
