@@ -3,6 +3,7 @@ import 'package:expensely_app/Screens/Welcome_Screen.dart';
 import 'package:expensely_app/bloc/expense_bloc.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
 import 'package:expensely_app/constants/colors.dart';
+import 'package:expensely_app/constants/methods.dart';
 import 'package:expensely_app/models/category_model.dart';
 import 'package:expensely_app/models/transaction.dart';
 
@@ -20,7 +21,7 @@ void main() async {
   Hive.registerAdapter(TransactionAdapter());
   Hive.registerAdapter(CategoryModelAdapter());
   await Hive.openBox<Transaction>('transactionsBox');
-  await Hive.openBox<CategoryModel>('categoriesBox');
+  await initializeDefaultCategories();
 
   final savedName = SharedPrefService.getData("userName"); // ⬅️ Get instance
 
@@ -48,12 +49,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Expensely App',
       theme: ThemeData(
-        fontFamily: "Poppins",
-        scaffoldBackgroundColor: offWhiteColor,
-        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor, primaryContainer: Colors.white),
-        bottomSheetTheme: BottomSheetThemeData(backgroundColor: offWhiteColor),
-        useMaterial3: true,
-      ),
+          fontFamily: "Poppins",
+          scaffoldBackgroundColor: offWhiteColor,
+          colorScheme: ColorScheme.fromSeed(seedColor: primaryColor, primaryContainer: Colors.white),
+          bottomSheetTheme: BottomSheetThemeData(backgroundColor: offWhiteColor),
+          useMaterial3: true,
+          dialogTheme: DialogThemeData(backgroundColor: Colors.white)),
       home: savedName == null ? WelcomeScreen() : MainScreen(),
     );
   }

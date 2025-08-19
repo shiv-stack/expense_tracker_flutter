@@ -1,13 +1,17 @@
+import 'package:expensely_app/Screens/category_mgmt_screen.dart';
 import 'package:expensely_app/Screens/more_apps_screen.dart';
 import 'package:expensely_app/bloc/expense_bloc.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
 import 'package:expensely_app/constants/colors.dart';
+import 'package:expensely_app/models/category_model.dart';
 import 'package:expensely_app/models/currency.dart';
 import 'package:expensely_app/services/shared_prefs_service.dart';
 import 'package:expensely_app/widgets/currency_picker_dialog.dart';
 import 'package:expensely_app/widgets/edit_name_dialog.dart';
+import 'package:expensely_app/widgets/premimum_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -149,6 +153,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildSectionTitle("General"),
               _buildProfileCard(
                 children: [
+                  _buildProfileOption(
+                    icon: Icons.workspace_premium_rounded,
+                    title: 'Premimum',
+                    onTap: () {
+                      showPremiumBottomSheet(context);
+                    },
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.category_rounded,
+                    title: 'Manage Categories',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryManagerScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
                   // UPDATED: The onTap now calls the _shareApp method
                   _buildProfileOption(
                     icon: Icons.share_outlined,

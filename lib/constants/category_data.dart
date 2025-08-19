@@ -24,17 +24,12 @@ final List<CategoryModel> expenseCategories = [
   CategoryModel(name: 'Pet Care', iconKey: 'pet', type: 'Expense'),
   CategoryModel(name: 'Sport', iconKey: 'sport', type: 'Expense'),
   CategoryModel(name: 'Parking', iconKey: 'parking', type: 'Expense'),
-  CategoryModel(name: 'Car Maintenance', iconKey: 'car_maintenance', type: 'Expense'),
   CategoryModel(name: 'Furnishings', iconKey: 'furnishings', type: 'Expense'),
   CategoryModel(name: 'Phone', iconKey: 'phone', type: 'Expense'),
   CategoryModel(name: 'Internet', iconKey: 'internet', type: 'Expense'),
   CategoryModel(name: 'Electronics', iconKey: 'electronics', type: 'Expense'),
   CategoryModel(name: 'Taxes', iconKey: 'taxes', type: 'Expense'),
-  CategoryModel(name: 'Business', iconKey: 'business', type: 'Expense'),
-  CategoryModel(name: 'Legal Fees', iconKey: 'legal', type: 'Expense'),
-  CategoryModel(name: 'Bank Fees', iconKey: 'bank', type: 'Expense'),
   CategoryModel(name: 'Subscriptions', iconKey: 'subscriptions', type: 'Expense'),
-  CategoryModel(name: 'Debt Payments', iconKey: 'debt', type: 'Expense'),
 ];
 
 final List<CategoryModel> incomeCategories = [
@@ -48,5 +43,4 @@ final List<CategoryModel> incomeCategories = [
   CategoryModel(name: 'Rental Income', iconKey: 'rent', type: 'Income'),
   CategoryModel(name: 'Side Income', iconKey: 'side_income', type: 'Income'),
   CategoryModel(name: 'Freelance', iconKey: 'freelance', type: 'Income'),
-  CategoryModel(name: 'Commission', iconKey: 'commission', type: 'Income'),
 ];

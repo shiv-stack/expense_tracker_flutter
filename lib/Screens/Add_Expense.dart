@@ -1,10 +1,10 @@
 import 'package:expensely_app/bloc/expense_bloc.dart';
 import 'package:expensely_app/bloc/expense_event.dart';
-import 'package:expensely_app/constants/category_data.dart';
 import 'package:expensely_app/constants/colors.dart';
 import 'package:expensely_app/models/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart' hide Stack;
 import 'package:expensely_app/models/category_model.dart';
@@ -29,10 +29,11 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
   num result = 0;
   DateTime selectedDate = DateTime.now();
   TextEditingController noteController = TextEditingController();
-  TextEditingController amountController = TextEditingController();
 
   late AnimationController _controller;
   late Animation<double> _heightAnimation;
+  late Box<CategoryModel> categoryBox;
+  late List<CategoryModel> allCategories;
 
   String? selectedCat = "";
   String selectedType = 'Expense'; // default
@@ -40,6 +41,8 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
   @override
   void initState() {
     super.initState();
+    categoryBox = Hive.box<CategoryModel>('categories');
+    allCategories = categoryBox.values.toList();
     _controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 340),
@@ -53,7 +56,6 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
       selectedType = tx.isIncome ? 'Income' : 'Expense';
       selectedCategory = tx.category;
       selectedCat = tx.category.name;
-      amountController = TextEditingController(text: tx.amount.toString());
       result = tx.amount;
       isIncome = tx.isIncome;
       noteController = TextEditingController(text: tx.note);
@@ -62,7 +64,6 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
       _controller.forward();
     } else {
       // Defaults for add mode
-      amountController = TextEditingController();
       noteController = TextEditingController();
       selectedDate = DateTime.now();
     }
@@ -119,8 +120,7 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
   Widget build(BuildContext context) {
     final isEditing = widget.editingTx != null;
 
-    final categories = isIncome ? incomeCategories : expenseCategories;
-
+    final categories = allCategories.where((cat) => cat.type == (isIncome ? 'Income' : 'Expense')).toList();
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditing ? "Edit Transaction" : "Add Expense",
@@ -144,7 +144,7 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
             child: Column(
               children: [
                 ToggleButtons(
@@ -195,10 +195,10 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
                                 ),
                                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                                   CircleAvatar(
-                                    radius: 26,
+                                    radius: 20,
                                     backgroundColor: Colors.white,
                                     child: Icon(cat.icon,
-                                        color: selectedCat == cat.name ? primaryColor : Colors.grey, size: 29),
+                                        color: selectedCat == cat.name ? primaryColor : Colors.grey, size: 25),
                                   ),
                                   SizedBox(height: 7),
                                   Text(cat.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14)),
@@ -208,7 +208,7 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
                         .toList(),
                   ),
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 5),
               ],
             ),
           ),
@@ -282,7 +282,7 @@ class _AddExpenseAnimatedScreenState extends State<AddExpenseAnimatedScreen> wit
                                       ),
                                       SizedBox(width: 10),
                                       Text(
-                                        '₹${result}',
+                                        '₹$result',
                                         style: TextStyle(
                                           fontSize: 22,
                                           fontWeight: FontWeight.bold,

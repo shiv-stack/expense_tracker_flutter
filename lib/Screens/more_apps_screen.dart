@@ -35,11 +35,19 @@ class MoreAppsScreen extends StatelessWidget {
   }
 
   Widget _buildAppCard(BuildContext context, AppInfo app) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.1),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            spreadRadius: 1,
+            blurRadius: 10,
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
